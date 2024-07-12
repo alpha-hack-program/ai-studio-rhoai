@@ -1,0 +1,20 @@
+kind: Secret
+apiVersion: v1
+metadata:
+  name: aws-connection-{{ .Values.pipelines.connection.name }}
+  namespace: {{ .Values.dataScienceProjectNamespace }}
+  labels:
+    opendatahub.io/dashboard: 'true'
+    opendatahub.io/managed: 'true'
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1" # Set sync-wave to -1 to avoid conflicts with other resources
+    opendatahub.io/connection-type: {{ .Values.pipelines.connection.type }}
+    openshift.io/display-name: {{ .Values.pipelines.connection.displayName }}
+stringData:
+  AWS_ACCESS_KEY_ID: {{ .Values.pipelines.connection.awsAccessKeyId }}
+  AWS_SECRET_ACCESS_KEY: {{ .Values.pipelines.connection.awsSecretAccessKey }}
+  AWS_DEFAULT_REGION: {{ .Values.pipelines.connection.awsDefaultRegion }}
+  AWS_S3_BUCKET: {{ .Values.pipelines.connection.awsS3Bucket }}
+  AWS_S3_ENDPOINT: {{ printf "%s://%s" .Values.pipelines.connection.scheme .Values.pipelines.connection.awsS3Endpoint }}
+  
+type: Opaque

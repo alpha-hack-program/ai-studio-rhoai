@@ -1,0 +1,14 @@
+{{- if .Values.sourceWorkspaceSize }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: "{{ .Values.instanceName }}-source-pvc"
+  namespace: "{{ .Values.dataScienceProjectNamespace }}"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.sourceWorkspaceSize }}
+{{- end }}

@@ -1,0 +1,29 @@
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: "{{ .Values.instanceName }}-cicd"
+#   namespace: openshift-gitops
+#   annotations:
+#     argocd.argoproj.io/compare-options: IgnoreExtraneous
+#     argocd.argoproj.io/sync-wave: "1"
+# spec:
+#   project: default
+#   destination:
+#     server: 'https://kubernetes.default.svc'
+#     namespace: "{{ .Values.dataScienceProjectNamespace }}"
+#   source:
+#     path: "{{ .Values.cicdApplication.path }}"
+#     repoURL: "{{ .Values.cicdApplication.repoURL }}"
+#     targetRevision: "{{ .Values.cicdApplication.targetRevision }}"
+#     helm:
+#       parameters:
+#         - name: createNamespace
+#           value: "false"
+#         - name: instanceName
+#           value: "{{ .Values.model.name }}"
+#         - name: dataScienceProjectNamespace
+#           value: "{{ .Values.dataScienceProjectNamespace }}"
+#   syncPolicy:
+#     automated:
+#       # prune: true
+#       selfHeal: true

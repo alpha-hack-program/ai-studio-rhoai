@@ -1,0 +1,656 @@
+apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      alpha.image.policy.openshift.io/resolve-names: '*'
+      app.openshift.io/route-disabled: "false"
+      app.openshift.io/vcs-ref: ""
+      app.openshift.io/vcs-uri: https://github.com/alpha-hack-program/doc-bot
+      deployment.kubernetes.io/revision: "3"
+      image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"doc-bot:latest","namespace":"f-1"},"fieldPath":"spec.template.spec.containers[?(@.name==\"doc-bot\")].image","pause":"false"}]'
+      openshift.io/generated-by: OpenShiftWebConsole
+    creationTimestamp: "2024-07-04T17:14:50Z"
+    generation: 3
+    labels:
+      app: doc-bot
+      app.kubernetes.io/component: doc-bot
+      app.kubernetes.io/instance: doc-bot
+      app.kubernetes.io/name: doc-bot
+      app.kubernetes.io/part-of: doc-bot
+      app.openshift.io/runtime: python
+      app.openshift.io/runtime-version: 3.9-ubi8
+    managedFields:
+    - apiVersion: apps/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:spec:
+          f:template:
+            f:spec:
+              f:containers:
+                k:{"name":"doc-bot"}:
+                  f:image: {}
+      manager: openshift-controller-manager
+      operation: Update
+      time: "2024-07-04T17:21:10Z"
+    - apiVersion: apps/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            .: {}
+            f:alpha.image.policy.openshift.io/resolve-names: {}
+            f:app.openshift.io/route-disabled: {}
+            f:app.openshift.io/vcs-ref: {}
+            f:app.openshift.io/vcs-uri: {}
+            f:image.openshift.io/triggers: {}
+            f:openshift.io/generated-by: {}
+          f:labels:
+            .: {}
+            f:app: {}
+            f:app.kubernetes.io/component: {}
+            f:app.kubernetes.io/instance: {}
+            f:app.kubernetes.io/name: {}
+            f:app.kubernetes.io/part-of: {}
+            f:app.openshift.io/runtime: {}
+            f:app.openshift.io/runtime-version: {}
+        f:spec:
+          f:progressDeadlineSeconds: {}
+          f:replicas: {}
+          f:revisionHistoryLimit: {}
+          f:selector: {}
+          f:strategy:
+            f:rollingUpdate:
+              .: {}
+              f:maxSurge: {}
+              f:maxUnavailable: {}
+            f:type: {}
+          f:template:
+            f:metadata:
+              f:labels:
+                .: {}
+                f:app: {}
+                f:deployment: {}
+            f:spec:
+              f:containers:
+                k:{"name":"doc-bot"}:
+                  .: {}
+                  f:envFrom: {}
+                  f:imagePullPolicy: {}
+                  f:name: {}
+                  f:ports:
+                    .: {}
+                    k:{"containerPort":8080,"protocol":"TCP"}:
+                      .: {}
+                      f:containerPort: {}
+                      f:protocol: {}
+                  f:resources: {}
+                  f:terminationMessagePath: {}
+                  f:terminationMessagePolicy: {}
+              f:dnsPolicy: {}
+              f:restartPolicy: {}
+              f:schedulerName: {}
+              f:securityContext: {}
+              f:terminationGracePeriodSeconds: {}
+      manager: Mozilla
+      operation: Update
+      time: "2024-07-04T17:36:26Z"
+    - apiVersion: apps/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            f:deployment.kubernetes.io/revision: {}
+        f:status:
+          f:availableReplicas: {}
+          f:conditions:
+            .: {}
+            k:{"type":"Available"}:
+              .: {}
+              f:lastTransitionTime: {}
+              f:lastUpdateTime: {}
+              f:message: {}
+              f:reason: {}
+              f:status: {}
+              f:type: {}
+            k:{"type":"Progressing"}:
+              .: {}
+              f:lastTransitionTime: {}
+              f:lastUpdateTime: {}
+              f:message: {}
+              f:reason: {}
+              f:status: {}
+              f:type: {}
+          f:observedGeneration: {}
+          f:readyReplicas: {}
+          f:replicas: {}
+          f:updatedReplicas: {}
+      manager: kube-controller-manager
+      operation: Update
+      subresource: status
+      time: "2024-07-05T06:40:05Z"
+    name: doc-bot
+    namespace: f-1
+    resourceVersion: "8384099"
+    uid: d71718ab-4e87-4776-9525-d163a71274e1
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: doc-bot
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: doc-bot
+          deployment: doc-bot
+      spec:
+        containers:
+        - envFrom:
+          - secretRef:
+              name: doc-bot-env
+          image: image-registry.openshift-image-registry.svc:5000/f-1/doc-bot@sha256:fde8e68b8b3d1346831895fe11d4fa6d5d443f54122d4dee96a330a654443c2e
+          imagePullPolicy: Always
+          name: doc-bot
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2024-07-04T17:14:50Z"
+      lastUpdateTime: "2024-07-04T17:36:28Z"
+      message: ReplicaSet "doc-bot-659c46f67f" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2024-07-05T06:40:05Z"
+      lastUpdateTime: "2024-07-05T06:40:05Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 3
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      app.openshift.io/vcs-ref: ""
+      app.openshift.io/vcs-uri: https://github.com/alpha-hack-program/doc-bot
+      openshift.io/generated-by: OpenShiftWebConsole
+    creationTimestamp: "2024-07-04T17:14:50Z"
+    labels:
+      app: doc-bot
+      app.kubernetes.io/component: doc-bot
+      app.kubernetes.io/instance: doc-bot
+      app.kubernetes.io/name: doc-bot
+      app.kubernetes.io/part-of: doc-bot
+      app.openshift.io/runtime: python
+      app.openshift.io/runtime-version: 3.9-ubi8
+    managedFields:
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            .: {}
+            f:app.openshift.io/vcs-ref: {}
+            f:app.openshift.io/vcs-uri: {}
+            f:openshift.io/generated-by: {}
+          f:labels:
+            .: {}
+            f:app: {}
+            f:app.kubernetes.io/component: {}
+            f:app.kubernetes.io/instance: {}
+            f:app.kubernetes.io/name: {}
+            f:app.kubernetes.io/part-of: {}
+            f:app.openshift.io/runtime: {}
+            f:app.openshift.io/runtime-version: {}
+        f:spec:
+          f:internalTrafficPolicy: {}
+          f:ports:
+            .: {}
+            k:{"port":7860,"protocol":"TCP"}:
+              .: {}
+              f:name: {}
+              f:port: {}
+              f:protocol: {}
+              f:targetPort: {}
+          f:selector: {}
+          f:sessionAffinity: {}
+          f:type: {}
+      manager: Mozilla
+      operation: Update
+      time: "2024-07-04T17:14:50Z"
+    name: doc-bot
+    namespace: f-1
+    resourceVersion: "8107243"
+    uid: f0ffdd00-53f4-4e1c-a31e-cfcd880b3785
+  spec:
+    clusterIP: 172.30.83.197
+    clusterIPs:
+    - 172.30.83.197
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: 7860-tcp
+      port: 7860
+      protocol: TCP
+      targetPort: 7860
+    selector:
+      app: doc-bot
+      deployment: doc-bot
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  data:
+    APP_TITLE: Q2hhdCB3aXRoIHlvdXIgS25vd2xlZGdlIEJhc2Uh
+    DEFAULT_COLLECTION: bm9uZQ==
+    INFERENCE_SERVER_URL: aHR0cHM6Ly9taXN0cmFsLTdiLXZsbG0tbWlzdHJhbC03Yi5hcHBzLmNsdXN0ZXItcHdrcWouc2FuZGJveDI4NTIub3BlbnRsYy5jb20vdjE=
+    MAX_RETRIEVED_DOCS: NA==
+    MAX_TOKENS: MTAyNA==
+    MILVUS_COLLECTIONS_FILE: Li9jb2xsZWN0aW9ucy5qc29u
+    MILVUS_HOST: dmVjdG9yZGItbWlsdnVzLm1pbHZ1cw==
+    MILVUS_PASSWORD: TWlsdnVz
+    MILVUS_PORT: MTk1MzA=
+    MILVUS_USERNAME: cm9vdA==
+    MODEL_NAME: L21udC9tb2RlbHMv
+    PRESENCE_PENALTY: MS4wMw==
+    PROMPT_FILE: ZGVmYXVsdF9wcm9tcHQudHh0
+    SCORE_THRESHOLD: MC45OQ==
+    SHOW_TITLE_IMAGE: VHJ1ZQ==
+    TEMPERATURE: MC4wMQ==
+    TOP_P: MC45NQ==
+  kind: Secret
+  metadata:
+    creationTimestamp: "2024-07-04T17:35:08Z"
+    labels:
+      app: doc-bot
+    managedFields:
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:data:
+          .: {}
+          f:APP_TITLE: {}
+          f:DEFAULT_COLLECTION: {}
+          f:INFERENCE_SERVER_URL: {}
+          f:MAX_RETRIEVED_DOCS: {}
+          f:MAX_TOKENS: {}
+          f:MILVUS_COLLECTIONS_FILE: {}
+          f:MILVUS_HOST: {}
+          f:MILVUS_PASSWORD: {}
+          f:MILVUS_PORT: {}
+          f:MILVUS_USERNAME: {}
+          f:MODEL_NAME: {}
+          f:PRESENCE_PENALTY: {}
+          f:PROMPT_FILE: {}
+          f:SCORE_THRESHOLD: {}
+          f:SHOW_TITLE_IMAGE: {}
+          f:TEMPERATURE: {}
+          f:TOP_P: {}
+        f:metadata:
+          f:labels:
+            .: {}
+            f:app: {}
+        f:type: {}
+      manager: Mozilla
+      operation: Update
+      time: "2024-07-05T10:54:52Z"
+    name: doc-bot-env
+    namespace: f-1
+    resourceVersion: "8768211"
+    uid: 83a5fe26-6cfe-4aaa-8991-0738dd293f83
+  type: Opaque
+- apiVersion: v1
+  data:
+    WebHookSecretKey: ZmIzNGU3NTUyNDE3OTM1Zg==
+  kind: Secret
+  metadata:
+    creationTimestamp: "2024-07-04T17:14:49Z"
+    labels:
+      app: doc-bot
+      app.kubernetes.io/component: doc-bot
+      app.kubernetes.io/instance: doc-bot
+      app.kubernetes.io/name: doc-bot
+      app.kubernetes.io/part-of: doc-bot
+      app.openshift.io/runtime: python
+      app.openshift.io/runtime-version: 3.9-ubi8
+    managedFields:
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:data:
+          .: {}
+          f:WebHookSecretKey: {}
+        f:metadata:
+          f:labels:
+            .: {}
+            f:app: {}
+            f:app.kubernetes.io/component: {}
+            f:app.kubernetes.io/instance: {}
+            f:app.kubernetes.io/name: {}
+            f:app.kubernetes.io/part-of: {}
+            f:app.openshift.io/runtime: {}
+            f:app.openshift.io/runtime-version: {}
+        f:type: {}
+      manager: Mozilla
+      operation: Update
+      time: "2024-07-04T17:14:49Z"
+    name: doc-bot-generic-webhook-secret
+    namespace: f-1
+    resourceVersion: "8107206"
+    uid: 8b97deac-e312-41aa-86b8-a890281bde3e
+  type: Opaque
+- apiVersion: v1
+  data:
+    WebHookSecretKey: N2E5MTA3ZTY0MzQ5MzM0NQ==
+  kind: Secret
+  metadata:
+    creationTimestamp: "2024-07-04T17:14:49Z"
+    labels:
+      app: doc-bot
+      app.kubernetes.io/component: doc-bot
+      app.kubernetes.io/instance: doc-bot
+      app.kubernetes.io/name: doc-bot
+      app.kubernetes.io/part-of: doc-bot
+      app.openshift.io/runtime: python
+      app.openshift.io/runtime-version: 3.9-ubi8
+    managedFields:
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:data:
+          .: {}
+          f:WebHookSecretKey: {}
+        f:metadata:
+          f:labels:
+            .: {}
+            f:app: {}
+            f:app.kubernetes.io/component: {}
+            f:app.kubernetes.io/instance: {}
+            f:app.kubernetes.io/name: {}
+            f:app.kubernetes.io/part-of: {}
+            f:app.openshift.io/runtime: {}
+            f:app.openshift.io/runtime-version: {}
+        f:type: {}
+      manager: Mozilla
+      operation: Update
+      time: "2024-07-04T17:14:49Z"
+    name: doc-bot-github-webhook-secret
+    namespace: f-1
+    resourceVersion: "8107218"
+    uid: fe862960-5c89-43b6-bbdb-1a5e932d0a01
+  type: Opaque
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      app.openshift.io/vcs-ref: ""
+      app.openshift.io/vcs-uri: https://github.com/alpha-hack-program/doc-bot
+      openshift.io/generated-by: OpenShiftWebConsole
+    creationTimestamp: "2024-07-04T17:14:49Z"
+    generation: 1
+    labels:
+      app: doc-bot
+      app.kubernetes.io/component: doc-bot
+      app.kubernetes.io/instance: doc-bot
+      app.kubernetes.io/name: doc-bot
+      app.kubernetes.io/part-of: doc-bot
+      app.openshift.io/runtime: python
+      app.openshift.io/runtime-version: 3.9-ubi8
+    managedFields:
+    - apiVersion: image.openshift.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            .: {}
+            f:app.openshift.io/vcs-ref: {}
+            f:app.openshift.io/vcs-uri: {}
+            f:openshift.io/generated-by: {}
+          f:labels:
+            .: {}
+            f:app: {}
+            f:app.kubernetes.io/component: {}
+            f:app.kubernetes.io/instance: {}
+            f:app.kubernetes.io/name: {}
+            f:app.kubernetes.io/part-of: {}
+            f:app.openshift.io/runtime: {}
+            f:app.openshift.io/runtime-version: {}
+      manager: Mozilla
+      operation: Update
+      time: "2024-07-04T17:14:49Z"
+    name: doc-bot
+    namespace: f-1
+    resourceVersion: "8116615"
+    uid: 9048c23e-f5c2-46a7-b69b-038069dad57e
+  spec:
+    lookupPolicy:
+      local: false
+  status:
+    dockerImageRepository: image-registry.openshift-image-registry.svc:5000/f-1/doc-bot
+    tags:
+    - items:
+      - created: "2024-07-04T17:21:10Z"
+        dockerImageReference: image-registry.openshift-image-registry.svc:5000/f-1/doc-bot@sha256:fde8e68b8b3d1346831895fe11d4fa6d5d443f54122d4dee96a330a654443c2e
+        generation: 1
+        image: sha256:fde8e68b8b3d1346831895fe11d4fa6d5d443f54122d4dee96a330a654443c2e
+      tag: latest
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      app.openshift.io/vcs-ref: ""
+      app.openshift.io/vcs-uri: https://github.com/alpha-hack-program/doc-bot
+      openshift.io/generated-by: OpenShiftWebConsole
+    creationTimestamp: "2024-07-04T17:14:49Z"
+    generation: 2
+    labels:
+      app: doc-bot
+      app.kubernetes.io/component: doc-bot
+      app.kubernetes.io/instance: doc-bot
+      app.kubernetes.io/name: doc-bot
+      app.kubernetes.io/part-of: doc-bot
+      app.openshift.io/runtime: python
+      app.openshift.io/runtime-version: 3.9-ubi8
+    managedFields:
+    - apiVersion: build.openshift.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            .: {}
+            f:app.openshift.io/vcs-ref: {}
+            f:app.openshift.io/vcs-uri: {}
+            f:openshift.io/generated-by: {}
+          f:labels:
+            .: {}
+            f:app: {}
+            f:app.kubernetes.io/component: {}
+            f:app.kubernetes.io/instance: {}
+            f:app.kubernetes.io/name: {}
+            f:app.kubernetes.io/part-of: {}
+            f:app.openshift.io/runtime: {}
+            f:app.openshift.io/runtime-version: {}
+        f:spec:
+          f:output:
+            f:to: {}
+          f:runPolicy: {}
+          f:source:
+            f:contextDir: {}
+            f:git:
+              .: {}
+              f:uri: {}
+            f:type: {}
+          f:strategy:
+            f:sourceStrategy:
+              .: {}
+              f:from: {}
+            f:type: {}
+          f:triggers: {}
+      manager: Mozilla
+      operation: Update
+      time: "2024-07-04T17:14:49Z"
+    - apiVersion: build.openshift.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:status:
+          f:imageChangeTriggers: {}
+          f:lastVersion: {}
+      manager: openshift-apiserver
+      operation: Update
+      time: "2024-07-04T17:14:49Z"
+    name: doc-bot
+    namespace: f-1
+    resourceVersion: "8107202"
+    uid: 65dea72a-709d-4f0e-b2a4-0005b19d7bc2
+  spec:
+    failedBuildsHistoryLimit: 5
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: doc-bot:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      contextDir: examples/ui/gradio-rag-milvus-vllm-openai
+      git:
+        uri: https://github.com/alpha-hack-program/doc-bot
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: python:3.9-ubi8
+          namespace: openshift
+      type: Source
+    successfulBuildsHistoryLimit: 5
+    triggers:
+    - generic:
+        secretReference:
+          name: doc-bot-generic-webhook-secret
+      type: Generic
+    - github:
+        secretReference:
+          name: doc-bot-github-webhook-secret
+      type: GitHub
+    - imageChange: {}
+      type: ImageChange
+    - type: ConfigChange
+  status:
+    imageChangeTriggers:
+    - from:
+        name: python:3.9-ubi8
+        namespace: openshift
+      lastTriggerTime: "2024-07-04T17:14:49Z"
+      lastTriggeredImageID: image-registry.openshift-image-registry.svc:5000/openshift/python@sha256:90652b232130947feeb7b5fd5c91c8c955eee4990161ab1b851d8e1d5e830d6c
+    lastVersion: 1
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    annotations:
+      openshift.io/host.generated: "true"
+    creationTimestamp: "2024-07-04T17:14:50Z"
+    labels:
+      app: doc-bot
+      app.kubernetes.io/component: doc-bot
+      app.kubernetes.io/instance: doc-bot
+      app.kubernetes.io/name: doc-bot
+      app.kubernetes.io/part-of: doc-bot
+      app.openshift.io/runtime: python
+      app.openshift.io/runtime-version: 3.9-ubi8
+    managedFields:
+    - apiVersion: route.openshift.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:labels:
+            .: {}
+            f:app: {}
+            f:app.kubernetes.io/component: {}
+            f:app.kubernetes.io/instance: {}
+            f:app.kubernetes.io/name: {}
+            f:app.kubernetes.io/part-of: {}
+            f:app.openshift.io/runtime: {}
+            f:app.openshift.io/runtime-version: {}
+        f:spec:
+          f:port:
+            .: {}
+            f:targetPort: {}
+          f:tls:
+            .: {}
+            f:insecureEdgeTerminationPolicy: {}
+            f:termination: {}
+          f:to:
+            f:kind: {}
+            f:name: {}
+            f:weight: {}
+          f:wildcardPolicy: {}
+      manager: Mozilla
+      operation: Update
+      time: "2024-07-04T17:14:50Z"
+    - apiVersion: route.openshift.io/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:status:
+          f:ingress: {}
+      manager: openshift-router
+      operation: Update
+      subresource: status
+      time: "2024-07-04T17:14:50Z"
+    name: doc-bot
+    namespace: f-1
+    resourceVersion: "8107252"
+    uid: e092a601-f229-4637-9bdc-db9585d0b24b
+  spec:
+    host: doc-bot-f-1.apps.cluster-pwkqj.sandbox2852.opentlc.com
+    port:
+      targetPort: 7860-tcp
+    tls:
+      insecureEdgeTerminationPolicy: Redirect
+      termination: edge
+    to:
+      kind: Service
+      name: doc-bot
+      weight: 100
+    wildcardPolicy: None
+  status:
+    ingress:
+    - conditions:
+      - lastTransitionTime: "2024-07-04T17:14:50Z"
+        status: "True"
+        type: Admitted
+      host: doc-bot-f-1.apps.cluster-pwkqj.sandbox2852.opentlc.com
+      routerCanonicalHostname: router-default.apps.cluster-pwkqj.sandbox2852.opentlc.com
+      routerName: default
+      wildcardPolicy: None
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

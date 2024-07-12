@@ -1,0 +1,249 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    alpha.image.policy.openshift.io/resolve-names: '*'
+    app.openshift.io/route-disabled: "false"
+    app.openshift.io/vcs-ref: ""
+    app.openshift.io/vcs-uri: https://github.com/alpha-hack-program/doc-bot
+    deployment.kubernetes.io/revision: "3"
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"doc-bot:latest","namespace":"f-1"},"fieldPath":"spec.template.spec.containers[?(@.name==\"doc-bot\")].image","pause":"false"}]'
+    openshift.io/generated-by: OpenShiftWebConsole
+  labels:
+    app: doc-bot
+    app.kubernetes.io/component: doc-bot
+    app.kubernetes.io/instance: doc-bot
+    app.kubernetes.io/name: doc-bot
+    app.kubernetes.io/part-of: doc-bot
+    app.openshift.io/runtime: python
+    app.openshift.io/runtime-version: 3.9-ubi8
+  name: doc-bot
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: doc-bot
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: doc-bot
+        deployment: doc-bot
+    spec:
+      containers:
+        - envFrom:
+            - secretRef:
+                name: doc-bot-env
+          image: image-registry.openshift-image-registry.svc:5000/f-1/doc-bot@sha256:fde8e68b8b3d1346831895fe11d4fa6d5d443f54122d4dee96a330a654443c2e
+          imagePullPolicy: Always
+          name: doc-bot
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    app.openshift.io/vcs-ref: ""
+    app.openshift.io/vcs-uri: https://github.com/alpha-hack-program/doc-bot
+    openshift.io/generated-by: OpenShiftWebConsole
+  labels:
+    app: doc-bot
+    app.kubernetes.io/component: doc-bot
+    app.kubernetes.io/instance: doc-bot
+    app.kubernetes.io/name: doc-bot
+    app.kubernetes.io/part-of: doc-bot
+    app.openshift.io/runtime: python
+    app.openshift.io/runtime-version: 3.9-ubi8
+  name: doc-bot
+spec:
+  clusterIP: 172.30.83.197
+  clusterIPs:
+    - 172.30.83.197
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+    - name: 7860-tcp
+      port: 7860
+      protocol: TCP
+      targetPort: 7860
+  selector:
+    app: doc-bot
+    deployment: doc-bot
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: v1
+data:
+  APP_TITLE: Q2hhdCB3aXRoIHlvdXIgS25vd2xlZGdlIEJhc2Uh
+  DEFAULT_COLLECTION: bm9uZQ==
+  INFERENCE_SERVER_URL: aHR0cHM6Ly9taXN0cmFsLTdiLXZsbG0tbWlzdHJhbC03Yi5hcHBzLmNsdXN0ZXItcHdrcWouc2FuZGJveDI4NTIub3BlbnRsYy5jb20vdjE=
+  MAX_RETRIEVED_DOCS: NA==
+  MAX_TOKENS: MTAyNA==
+  MILVUS_COLLECTIONS_FILE: Li9jb2xsZWN0aW9ucy5qc29u
+  MILVUS_HOST: dmVjdG9yZGItbWlsdnVzLm1pbHZ1cw==
+  MILVUS_PASSWORD: TWlsdnVz
+  MILVUS_PORT: MTk1MzA=
+  MILVUS_USERNAME: cm9vdA==
+  MODEL_NAME: L21udC9tb2RlbHMv
+  PRESENCE_PENALTY: MS4wMw==
+  PROMPT_FILE: ZGVmYXVsdF9wcm9tcHQudHh0
+  SCORE_THRESHOLD: MC45OQ==
+  SHOW_TITLE_IMAGE: VHJ1ZQ==
+  TEMPERATURE: MC4wMQ==
+  TOP_P: MC45NQ==
+kind: Secret
+metadata:
+  labels:
+    app: doc-bot
+  name: doc-bot-env
+type: Opaque
+---
+apiVersion: v1
+data:
+  WebHookSecretKey: ZmIzNGU3NTUyNDE3OTM1Zg==
+kind: Secret
+metadata:
+  labels:
+    app: doc-bot
+    app.kubernetes.io/component: doc-bot
+    app.kubernetes.io/instance: doc-bot
+    app.kubernetes.io/name: doc-bot
+    app.kubernetes.io/part-of: doc-bot
+    app.openshift.io/runtime: python
+    app.openshift.io/runtime-version: 3.9-ubi8
+  name: doc-bot-generic-webhook-secret
+type: Opaque
+---
+apiVersion: v1
+data:
+  WebHookSecretKey: N2E5MTA3ZTY0MzQ5MzM0NQ==
+kind: Secret
+metadata:
+  labels:
+    app: doc-bot
+    app.kubernetes.io/component: doc-bot
+    app.kubernetes.io/instance: doc-bot
+    app.kubernetes.io/name: doc-bot
+    app.kubernetes.io/part-of: doc-bot
+    app.openshift.io/runtime: python
+    app.openshift.io/runtime-version: 3.9-ubi8
+  name: doc-bot-github-webhook-secret
+type: Opaque
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  annotations:
+    app.openshift.io/vcs-ref: ""
+    app.openshift.io/vcs-uri: https://github.com/alpha-hack-program/doc-bot
+    openshift.io/generated-by: OpenShiftWebConsole
+  labels:
+    app: doc-bot
+    app.kubernetes.io/component: doc-bot
+    app.kubernetes.io/instance: doc-bot
+    app.kubernetes.io/name: doc-bot
+    app.kubernetes.io/part-of: doc-bot
+    app.openshift.io/runtime: python
+    app.openshift.io/runtime-version: 3.9-ubi8
+  name: doc-bot
+spec:
+  lookupPolicy:
+    local: false
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  annotations:
+    app.openshift.io/vcs-ref: ""
+    app.openshift.io/vcs-uri: https://github.com/alpha-hack-program/doc-bot
+    openshift.io/generated-by: OpenShiftWebConsole
+  labels:
+    app: doc-bot
+    app.kubernetes.io/component: doc-bot
+    app.kubernetes.io/instance: doc-bot
+    app.kubernetes.io/name: doc-bot
+    app.kubernetes.io/part-of: doc-bot
+    app.openshift.io/runtime: python
+    app.openshift.io/runtime-version: 3.9-ubi8
+  name: doc-bot
+spec:
+  failedBuildsHistoryLimit: 5
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: doc-bot:latest
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    contextDir: examples/ui/gradio-rag-milvus-vllm-openai
+    git:
+      uri: https://github.com/alpha-hack-program/doc-bot
+    type: Git
+  strategy:
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        name: python:3.9-ubi8
+        namespace: openshift
+    type: Source
+  successfulBuildsHistoryLimit: 5
+  triggers:
+    - generic:
+        secretReference:
+          name: doc-bot-generic-webhook-secret
+      type: Generic
+    - github:
+        secretReference:
+          name: doc-bot-github-webhook-secret
+      type: GitHub
+    - imageChange: {}
+      type: ImageChange
+    - type: ConfigChange
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  annotations:
+    openshift.io/host.generated: "true"
+  labels:
+    app: doc-bot
+    app.kubernetes.io/component: doc-bot
+    app.kubernetes.io/instance: doc-bot
+    app.kubernetes.io/name: doc-bot
+    app.kubernetes.io/part-of: doc-bot
+    app.openshift.io/runtime: python
+    app.openshift.io/runtime-version: 3.9-ubi8
+  name: doc-bot
+spec:
+  host: doc-bot-f-1.apps.cluster-pwkqj.sandbox2852.opentlc.com
+  port:
+    targetPort: 7860-tcp
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  to:
+    kind: Service
+    name: doc-bot
+    weight: 100
+  wildcardPolicy: None

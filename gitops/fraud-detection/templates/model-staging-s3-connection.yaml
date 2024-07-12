@@ -1,0 +1,20 @@
+kind: Secret
+apiVersion: v1
+metadata:
+  name: aws-connection-{{ .Values.model.staging.connection.name }}
+  namespace: {{ .Values.dataScienceProjectNamespace }}
+  labels:
+    opendatahub.io/dashboard: 'true'
+    opendatahub.io/managed: 'true'
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    opendatahub.io/connection-type: {{ .Values.model.staging.connection.type }}
+    openshift.io/display-name: {{ .Values.model.staging.connection.displayName }}
+stringData:
+  AWS_ACCESS_KEY_ID: {{ .Values.model.staging.connection.awsAccessKeyId }}
+  AWS_SECRET_ACCESS_KEY: {{ .Values.model.staging.connection.awsSecretAccessKey }}
+  AWS_DEFAULT_REGION: {{ .Values.model.staging.connection.awsDefaultRegion }}
+  AWS_S3_BUCKET: {{ .Values.model.staging.connection.awsS3Bucket }}
+  AWS_S3_ENDPOINT: {{ printf "%s://%s" .Values.model.staging.connection.scheme .Values.model.staging.connection.awsS3Endpoint }}
+  
+type: Opaque

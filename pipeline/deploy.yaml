@@ -1,0 +1,485 @@
+# PIPELINE DEFINITION
+# Name: deploy
+# Inputs:
+#    accuracy_threshold: float [Default: 0.95]
+#    deployment_name: str [Default: 'modelmesh-serving-fraud-detection-model-server']
+#    enable_caching: bool [Default: False]
+# Outputs:
+#    test-model-results_output_metrics: system.Metrics
+components:
+  comp-condition-1:
+    dag:
+      tasks:
+        refresh-deployment:
+          cachingOptions: {}
+          componentRef:
+            name: comp-refresh-deployment
+          dependentTasks:
+          - upload-model
+          inputs:
+            parameters:
+              deployment_name:
+                componentInputParameter: pipelinechannel--deployment_name
+          taskInfo:
+            name: refresh-deployment
+        upload-model:
+          cachingOptions: {}
+          componentRef:
+            name: comp-upload-model
+          inputs:
+            artifacts:
+              input_model:
+                componentInputArtifact: pipelinechannel--get-evaluation-kit-model_output_model
+          taskInfo:
+            name: upload-model
+    inputDefinitions:
+      artifacts:
+        pipelinechannel--get-evaluation-kit-model_output_model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+      parameters:
+        pipelinechannel--accuracy_threshold:
+          parameterType: NUMBER_DOUBLE
+        pipelinechannel--deployment_name:
+          parameterType: STRING
+        pipelinechannel--parse-metrics-accuracy_output:
+          parameterType: NUMBER_DOUBLE
+  comp-get-evaluation-kit:
+    executorLabel: exec-get-evaluation-kit
+    outputDefinitions:
+      artifacts:
+        evaluation_data_output_dataset:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+        model_output_model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+        scaler_output_model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+  comp-parse-metrics:
+    executorLabel: exec-parse-metrics
+    inputDefinitions:
+      artifacts:
+        metrics_input:
+          artifactType:
+            schemaTitle: system.Metrics
+            schemaVersion: 0.0.1
+    outputDefinitions:
+      parameters:
+        accuracy_output:
+          parameterType: NUMBER_DOUBLE
+  comp-refresh-deployment:
+    executorLabel: exec-refresh-deployment
+    inputDefinitions:
+      parameters:
+        deployment_name:
+          parameterType: STRING
+  comp-test-model:
+    executorLabel: exec-test-model
+    inputDefinitions:
+      artifacts:
+        evaluation_data_input_dataset:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+        model_input_model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+        scaler_input_model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+    outputDefinitions:
+      artifacts:
+        results_output_metrics:
+          artifactType:
+            schemaTitle: system.Metrics
+            schemaVersion: 0.0.1
+  comp-upload-model:
+    executorLabel: exec-upload-model
+    inputDefinitions:
+      artifacts:
+        input_model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+deploymentSpec:
+  executors:
+    exec-get-evaluation-kit:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - get_evaluation_kit
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.8.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'boto3' 'botocore'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef get_evaluation_kit(\n    evaluation_data_output_dataset: Output[Dataset],\n\
+          \    scaler_output_model: Output[Model],\n    model_output_model: Output[Model]\n\
+          ):\n    import boto3\n    import botocore\n    import os\n    import zipfile\n\
+          \    import shutil\n\n    aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')\n\
+          \    aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')\n \
+          \   endpoint_url = os.environ.get('AWS_S3_ENDPOINT')\n    region_name =\
+          \ os.environ.get('AWS_DEFAULT_REGION')\n    bucket_name = os.environ.get('AWS_S3_BUCKET')\n\
+          \    evaluation_kit_s3_key = os.environ.get('EVALUATION_KIT_S3_KEY')\n\n\
+          \    evaluation_data_zip_path = os.environ.get('EVALUATION_DATA_ZIP_PATH')\n\
+          \    scaler_zip_path = os.environ.get('SCALER_ZIP_PATH')\n    model_zip_path\
+          \ = os.environ.get('MODEL_ZIP_PATH')\n\n    session = boto3.session.Session(\n\
+          \        aws_access_key_id=aws_access_key_id,\n        aws_secret_access_key=aws_secret_access_key\n\
+          \    )\n\n    s3_resource = session.resource(\n        's3',\n        config=botocore.client.Config(signature_version='s3v4'),\n\
+          \        endpoint_url=endpoint_url,\n        region_name=region_name\n \
+          \   )\n\n    bucket = s3_resource.Bucket(bucket_name)\n\n    # Create a\
+          \ temporary directory to store the evaluation kit\n\n    local_tmp_dir =\
+          \ '/tmp/get_evaluation_kit'\n    print(f\"local_tmp_dir: {local_tmp_dir}\"\
+          )\n\n    # Ensure local_tmp_dir exists\n    if not os.path.exists(local_tmp_dir):\n\
+          \        os.makedirs(local_tmp_dir)\n\n    # Get the file name from the\
+          \ S3 key\n    file_name = os.path.basename(evaluation_kit_s3_key)    \n\
+          \    # Download the evaluation kit\n    local_file_path = f'{local_tmp_dir}/{file_name}'\n\
+          \    print(f\"Downloading {evaluation_kit_s3_key} to {local_file_path}\"\
+          )\n    bucket.download_file(evaluation_kit_s3_key, local_file_path)\n  \
+          \  print(f\"Downloaded {evaluation_kit_s3_key}\")\n\n    # Unzip the evaluation\
+          \ kit using zipfile module\n    extraction_dir = f'{local_tmp_dir}/evaluation_kit'\n\
+          \    print(f\"Extracting {local_file_path} in {extraction_dir}\")\n    with\
+          \ zipfile.ZipFile(local_file_path, 'r') as zip_ref:\n        zip_ref.extractall(extraction_dir)\n\
+          \    print(f\"Extracted {local_file_path} in {extraction_dir}\")\n\n   \
+          \  # Copy the evaluation evaluation_kit/model.onnx to the model output path\n\
+          \    print(f\"Copying {extraction_dir}/{model_zip_path} to {model_output_model.path}\"\
+          )\n    shutil.copy(f'{extraction_dir}/{model_zip_path}', model_output_model.path)\n\
+          \n    # Copy the evaluation evaluation_kit/scaler.pkl to the scaler output\
+          \ path\n    print(f\"Copying {extraction_dir}/{scaler_zip_path} to {scaler_output_model.path}\"\
+          )\n    shutil.copy(f'{extraction_dir}/{scaler_zip_path}', scaler_output_model.path)\n\
+          \n    # Copy the evaluation evaluation_kit/evaluation_data.pkl to the evaluation\
+          \ data output path\n    print(f\"Copying {extraction_dir}/{evaluation_data_zip_path}\
+          \ to {evaluation_data_output_dataset.path}\")\n    shutil.copy(f'{extraction_dir}/{evaluation_data_zip_path}',\
+          \ evaluation_data_output_dataset.path)\n\n"
+        env:
+        - name: EVALUATION_KIT_S3_KEY
+          value: models/evaluation_kit.zip
+        - name: EVALUATION_DATA_ZIP_PATH
+          value: artifact/test_data.pkl
+        - name: SCALER_ZIP_PATH
+          value: artifact/scaler.pkl
+        - name: MODEL_ZIP_PATH
+          value: models/fraud/1/model.onnx
+        image: quay.io/modh/runtime-images:runtime-cuda-tensorflow-ubi9-python-3.9-2023b-20240301
+    exec-parse-metrics:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - parse_metrics
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.8.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef parse_metrics(metrics_input: Input[Metrics], accuracy_output:\
+          \ OutputPath(float)):\n    print(f\"metrics_input: {dir(metrics_input)}\"\
+          )\n    accuracy = metrics_input.metadata[\"accuracy\"]\n    with open(accuracy_output,\
+          \ 'w') as f:\n        f.write(str(accuracy))\n\n"
+        image: quay.io/modh/runtime-images:runtime-cuda-tensorflow-ubi9-python-3.9-2023b-20240301
+    exec-refresh-deployment:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - refresh_deployment
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.8.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'kubernetes'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef refresh_deployment(deployment_name: str):\n    import datetime\n\
+          \    import kubernetes\n\n    # Use the in-cluster config\n    kubernetes.config.load_incluster_config()\n\
+          \n    # Get the current namespace\n    with open(\"/var/run/secrets/kubernetes.io/serviceaccount/namespace\"\
+          , \"r\") as f:\n        namespace = f.read().strip()\n\n    # Create Kubernetes\
+          \ API client\n    api_instance = kubernetes.client.CustomObjectsApi()\n\n\
+          \    # Define the deployment patch\n    patch = {\n        \"spec\": {\n\
+          \            \"template\": {\n                \"metadata\": {\n        \
+          \            \"annotations\": {\n                        \"kubectl.kubernetes.io/restartedAt\"\
+          : f\"{datetime.datetime.now(datetime.timezone.utc).isoformat()}\"\n    \
+          \                }\n                }\n            }\n        }\n    }\n\
+          \n    try:\n        # Patch the deployment\n        api_instance.patch_namespaced_custom_object(\n\
+          \            group=\"apps\",\n            version=\"v1\",\n            namespace=namespace,\n\
+          \            plural=\"deployments\",\n            name=deployment_name,\n\
+          \            body=patch\n        )\n        print(f\"Deployment {deployment_name}\
+          \ patched successfully\")\n    except Exception as e:\n        print(f\"\
+          Failed to patch deployment {deployment_name}: {e}\")\n\n"
+        image: quay.io/modh/runtime-images:runtime-cuda-tensorflow-ubi9-python-3.9-2023b-20240301
+    exec-test-model:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - test_model
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.8.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'onnx==1.16.1'\
+          \ 'onnxruntime==1.18.0' 'scikit-learn==1.5.0' 'numpy==1.24.3' 'pandas==2.2.2'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef test_model(\n    evaluation_data_input_dataset: Input[Dataset],\n\
+          \    scaler_input_model: Input[Model],\n    model_input_model: Input[Model],\n\
+          \    results_output_metrics: Output[Metrics]\n):\n    import numpy as np\n\
+          \    import pickle\n    import onnxruntime as rt\n\n    # Load the evaluation\
+          \ data and scaler\n    with open(evaluation_data_input_dataset.path, 'rb')\
+          \ as handle:\n        (X_test, y_test) = pickle.load(handle)\n    with open(scaler_input_model.path,\
+          \ 'rb') as handle:\n        scaler = pickle.load(handle)\n\n    sess = rt.InferenceSession(model_input_model.path,\
+          \ providers=rt.get_available_providers())\n    input_name = sess.get_inputs()[0].name\n\
+          \    output_name = sess.get_outputs()[0].name\n    y_pred_temp = sess.run([output_name],\
+          \ {input_name: scaler.transform(X_test.values).astype(np.float32)}) \n \
+          \   y_pred_temp = np.asarray(np.squeeze(y_pred_temp[0]))\n    threshold\
+          \ = 0.995\n    y_pred = np.where(y_pred_temp > threshold, 1, 0)\n\n    accuracy\
+          \ = np.sum(np.asarray(y_test) == y_pred) / len(y_pred)\n    # print(\"Accuracy:\
+          \ \" + str(accuracy))\n\n    results_output_metrics.log_metric(\"accuracy\"\
+          , accuracy)\n\n"
+        image: quay.io/modh/runtime-images:runtime-cuda-tensorflow-ubi9-python-3.9-2023b-20240301
+    exec-upload-model:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - upload_model
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.8.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'boto3' 'botocore'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef upload_model(input_model: Input[Model]):\n    import os\n   \
+          \ import boto3\n    import botocore\n\n    aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')\n\
+          \    aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')\n \
+          \   endpoint_url = os.environ.get('AWS_S3_ENDPOINT')\n    region_name =\
+          \ os.environ.get('AWS_DEFAULT_REGION')\n    bucket_name = os.environ.get('AWS_S3_BUCKET')\n\
+          \n    s3_key = os.environ.get(\"MODEL_S3_KEY\")\n\n    print(f\"Uploading\
+          \ {input_model.path} to {s3_key} in {bucket_name} bucket in {endpoint_url}\
+          \ endpoint\")\n\n    session = boto3.session.Session(aws_access_key_id=aws_access_key_id,\n\
+          \                                    aws_secret_access_key=aws_secret_access_key)\n\
+          \n    s3_resource = session.resource(\n        's3',\n        config=botocore.client.Config(signature_version='s3v4'),\n\
+          \        endpoint_url=endpoint_url,\n        region_name=region_name)\n\n\
+          \    bucket = s3_resource.Bucket(bucket_name)\n\n    print(f\"Uploading\
+          \ {s3_key}\")\n    bucket.upload_file(input_model.path, s3_key)\n\n"
+        env:
+        - name: MODEL_S3_KEY
+          value: models/fraud/1/model.onnx
+        image: quay.io/modh/runtime-images:runtime-cuda-tensorflow-ubi9-python-3.9-2023b-20240301
+pipelineInfo:
+  name: deploy
+root:
+  dag:
+    outputs:
+      artifacts:
+        test-model-results_output_metrics:
+          artifactSelectors:
+          - outputArtifactKey: results_output_metrics
+            producerSubtask: test-model
+    tasks:
+      condition-1:
+        componentRef:
+          name: comp-condition-1
+        dependentTasks:
+        - get-evaluation-kit
+        - parse-metrics
+        inputs:
+          artifacts:
+            pipelinechannel--get-evaluation-kit-model_output_model:
+              taskOutputArtifact:
+                outputArtifactKey: model_output_model
+                producerTask: get-evaluation-kit
+          parameters:
+            pipelinechannel--accuracy_threshold:
+              componentInputParameter: accuracy_threshold
+            pipelinechannel--deployment_name:
+              componentInputParameter: deployment_name
+            pipelinechannel--parse-metrics-accuracy_output:
+              taskOutputParameter:
+                outputParameterKey: accuracy_output
+                producerTask: parse-metrics
+        taskInfo:
+          name: condition-1
+        triggerPolicy:
+          condition: inputs.parameter_values['pipelinechannel--parse-metrics-accuracy_output']
+            >= inputs.parameter_values['pipelinechannel--accuracy_threshold']
+      get-evaluation-kit:
+        cachingOptions: {}
+        componentRef:
+          name: comp-get-evaluation-kit
+        taskInfo:
+          name: get-evaluation-kit
+      parse-metrics:
+        cachingOptions: {}
+        componentRef:
+          name: comp-parse-metrics
+        dependentTasks:
+        - test-model
+        inputs:
+          artifacts:
+            metrics_input:
+              taskOutputArtifact:
+                outputArtifactKey: results_output_metrics
+                producerTask: test-model
+        taskInfo:
+          name: parse-metrics
+      test-model:
+        cachingOptions: {}
+        componentRef:
+          name: comp-test-model
+        dependentTasks:
+        - get-evaluation-kit
+        inputs:
+          artifacts:
+            evaluation_data_input_dataset:
+              taskOutputArtifact:
+                outputArtifactKey: evaluation_data_output_dataset
+                producerTask: get-evaluation-kit
+            model_input_model:
+              taskOutputArtifact:
+                outputArtifactKey: model_output_model
+                producerTask: get-evaluation-kit
+            scaler_input_model:
+              taskOutputArtifact:
+                outputArtifactKey: scaler_output_model
+                producerTask: get-evaluation-kit
+        taskInfo:
+          name: test-model
+  inputDefinitions:
+    parameters:
+      accuracy_threshold:
+        defaultValue: 0.95
+        isOptional: true
+        parameterType: NUMBER_DOUBLE
+      deployment_name:
+        defaultValue: modelmesh-serving-fraud-detection-model-server
+        isOptional: true
+        parameterType: STRING
+      enable_caching:
+        defaultValue: false
+        isOptional: true
+        parameterType: BOOLEAN
+  outputDefinitions:
+    artifacts:
+      test-model-results_output_metrics:
+        artifactType:
+          schemaTitle: system.Metrics
+          schemaVersion: 0.0.1
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.8.0
+---
+platforms:
+  kubernetes:
+    deploymentSpec:
+      executors:
+        exec-get-evaluation-kit:
+          secretAsEnv:
+          - keyToEnv:
+            - envVar: AWS_ACCESS_KEY_ID
+              secretKey: AWS_ACCESS_KEY_ID
+            - envVar: AWS_SECRET_ACCESS_KEY
+              secretKey: AWS_SECRET_ACCESS_KEY
+            - envVar: AWS_DEFAULT_REGION
+              secretKey: AWS_DEFAULT_REGION
+            - envVar: AWS_S3_BUCKET
+              secretKey: AWS_S3_BUCKET
+            - envVar: AWS_S3_ENDPOINT
+              secretKey: AWS_S3_ENDPOINT
+            secretName: aws-connection-model-staging
+        exec-upload-model:
+          secretAsEnv:
+          - keyToEnv:
+            - envVar: AWS_ACCESS_KEY_ID
+              secretKey: AWS_ACCESS_KEY_ID
+            - envVar: AWS_SECRET_ACCESS_KEY
+              secretKey: AWS_SECRET_ACCESS_KEY
+            - envVar: AWS_DEFAULT_REGION
+              secretKey: AWS_DEFAULT_REGION
+            - envVar: AWS_S3_BUCKET
+              secretKey: AWS_S3_BUCKET
+            - envVar: AWS_S3_ENDPOINT
+              secretKey: AWS_S3_ENDPOINT
+            secretName: aws-connection-model-runtime

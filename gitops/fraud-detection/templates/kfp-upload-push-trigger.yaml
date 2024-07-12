@@ -1,0 +1,188 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-github"
+  namespace: {{ .Values.dataScienceProjectNamespace }}
+spec:
+  serviceAccountName: {{ .Values.pipelinesServiceAccountName }}
+  triggers:
+    - name: github-listener
+      interceptors:
+        - ref:
+            name: github
+            kind: ClusterInterceptor
+            apiVersion: triggers.tekton.dev
+          params:
+            - name: eventTypes
+              value:
+                - push
+      bindings:
+        - kind: TriggerBinding
+          ref: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-github-trigger-binding"
+      template:
+        ref: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-trigger-template"
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-github-trigger-binding"
+  namespace: {{ .Values.dataScienceProjectNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  params:
+  - name: gitRepositoryUrl
+    value: $(body.repository.clone_url)
+  - name: gitRepository
+    value: $(body.repository.full_name)
+  - name: gitRevision
+    value: $(body.after)
+  - name: contentType
+    value: $(header.Content-Type)
+  - name: gitId
+    value: $(body.after)
+  - name: gitProvider
+    value: github
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-gitea"
+  namespace: {{ .Values.dataScienceProjectNamespace }}
+spec:
+  serviceAccountName: {{ .Values.pipelinesServiceAccountName }}
+  triggers:
+    - name: github-listener
+      interceptors:
+        - ref:
+            name: github
+            kind: ClusterInterceptor
+            apiVersion: triggers.tekton.dev
+          params:
+            - name: eventTypes
+              value:
+                - push
+      bindings:
+        - kind: TriggerBinding
+          ref: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-gitea-trigger-binding"
+      template:
+        ref: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-trigger-template"
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-gitea-trigger-binding"
+  namespace: {{ .Values.dataScienceProjectNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  params:
+  - name: gitRepositoryUrl
+    value: $(body.repository.clone_url)
+  - name: gitRepository
+    value: $(body.repository.full_name)
+  - name: gitRevision
+    value: $(body.after)
+  - name: contentType
+    value: $(header.Content-Type)
+  - name: gitId
+    value: $(body.after)
+  - name: gitProvider
+    value: gitea
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-gitlab"
+  namespace: {{ .Values.dataScienceProjectNamespace }}
+spec:
+  serviceAccountName: {{ .Values.pipelinesServiceAccountName }}
+  triggers:
+    - name: gitlab-listener
+      interceptors:
+        - ref:
+            name: gitlab
+            kind: ClusterInterceptor
+            apiVersion: triggers.tekton.dev
+          params:
+            - name: eventTypes
+              value:
+                - push
+      bindings:
+        - kind: TriggerBinding
+          ref: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-gitlab-trigger-binding"
+      template:
+        ref: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-trigger-template"
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-gitlab-trigger-binding"
+  namespace: {{ .Values.dataScienceProjectNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  params:
+  - name: gitRepositoryUrl
+    value: $(body.repository.clone_url)
+  - name: gitRepository
+    value: $(body.repository.full_name)
+  - name: gitRevision
+    value: $(body.after)
+  - name: contentType
+    value: $(header.Content-Type)
+  - name: gitId
+    value: $(body.after)
+  - name: gitProvider
+    value: gitlab
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-trigger-template"
+  namespace: {{ .Values.dataScienceProjectNamespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  params:
+  - name: gitRepositoryUrl
+  - name: gitRepository
+  - name: gitRevision
+  - name: gitId
+  - name: gitProvider
+  resourcetemplates:
+  - apiVersion: tekton.dev/v1beta1
+    kind: PipelineRun
+    metadata:
+      generateName: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-plr-"
+      namespace: {{ .Values.dataScienceProjectNamespace }}
+      labels:
+        app.kubernetes.io/instance: "{{ .Values.instanceName }}"
+        pipeline.openshift.io/runtime: quarkus
+        pipeline.openshift.io/type: knative
+        tekton.dev/pipeline: {{ .Values.modelDeploymentUploadTektonPipelineName }}
+    spec:
+      params:
+        - name: APP_NAME
+          value: "{{ .Values.modelDeploymentUploadTektonPipelineName }}"
+        - name: GIT_PROVIDER
+          value: $(tt.params.gitProvider)
+        - name: GIT_REPO
+          value: $(tt.params.gitRepositoryUrl)
+        - name: GIT_REPO_NAME
+          value: $(tt.params.gitRepository)
+        - name: GIT_REVISION
+          value: $(tt.params.gitRevision)
+        - name: IMAGE_TAG
+          value: $(tt.params.gitRevision)
+        - name: REVISION_NAME
+          value: v1
+      pipelineRef:
+        name: {{ .Values.modelDeploymentUploadTektonPipelineName }}
+      # serviceAccountName: {{ .Values.pipelinesServiceAccountName }}
+      timeout: 1h0m0s
+      workspaces:
+        - name: workspace-source
+          persistentVolumeClaim:
+            claimName: "{{ .Values.instanceName }}-source-pvc"
+
