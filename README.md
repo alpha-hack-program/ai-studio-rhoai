@@ -1,10 +1,10 @@
 # Sagemaker to RHOAI Fraud Detection
 
-This tutorial is based on: <https://rh-aiservices-bu.github.io/fraud-detection/> but instead of doing all the tasks in Red Hat OpenShift AI it tries to mmimic the scnerio where a Data Scientists develops a model in Sagemaker and then deploys it in OpenShift AI.
+This tutorial is based on: <https://rh-aiservices-bu.github.io/fraud-detection/> but instead of doing all the tasks in Red Hat OpenShift AI it tries to mmimic the scnerio where a Data Scientists develops a model in an AI Studio (like the ones  AWS, IBM, Google or Azure offer) and then deploys it in OpenShift AI.
 
 There are some differences though:
 
-- It starts in Sagemaker
+- For now this repo starts in Sagemaker but the scenario is generic
 - It uses Tekton to build the Kubeflow Pipeline (KFP) used to test and deploy the model
 - There's a Camel integration that helps moving the model from Amazon Web Services S3 to an on-premise Red Hat OpenShift AI installation
 - It uses Gitops to deploy all the components
@@ -12,7 +12,7 @@ There are some differences though:
 
 Picture of the arquitecture and flow.
 
-!['Sagemaker RHOAI'](./Sagemaker%20RHOAI.svg)
+!['AI Studio to RHOAI'](./AI%20Studio%20to%20RHOAI.svg)
 
 The simplified flow of the demonstration is as follows:
 
