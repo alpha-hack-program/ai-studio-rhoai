@@ -1,6 +1,6 @@
 # Sagemaker to RHOAI Fraud Detection
 
-This tutorial is based on: <https://rh-aiservices-bu.github.io/fraud-detection/> but instead of doing all the tasks in Red Hat OpenShift AI it tries to mmimic the scnerio where a Data Scientists develops a model in an AI Studio (like the ones  AWS, IBM, Google or Azure offer) and then deploys it in OpenShift AI.
+This tutorial is based on: <https://rh-aiservices-bu.github.io/fraud-detection/> but instead of doing all the tasks in Red Hat OpenShift AI it tries to mmimic the scnerio where a Data Scientists develops a model in an AI Studio (like the ones  AWS, IBM, Google or Azure offer) and then deploys it in Red Hat OpenShift AI.
 
 There are some differences though:
 
@@ -35,9 +35,10 @@ The simplified flow of the demonstration is as follows:
 Here you are sample `.env` file that should work straight away. Change `REPO_URL` if you have forked this repo and `INSTANCE_NAME` at will or if you want to deploy multiple times in the same cluster.
 
 ```sh
-cat <<EOF > ./bootstrap/.env
-REPO_URL="https://github.com/alpha-hack-program/sagemaker-rhoai.git"
 INSTANCE_NAME="fraud-detection"
+cat <<EOF > ./bootstrap/.env
+REPO_URL="https://github.com/alpha-hack-program/ai-studio-rhoai.git"
+INSTANCE_NAME="${INSTANCE_NAME}"
 DATA_SCIENCE_PROJECT_NAMESPACE="${INSTANCE_NAME}-ds"
 EOF
 ```
@@ -58,7 +59,6 @@ Adjust and run the next commands to create `./bootstrap/.creds` file.
 . ./bootstrap/.env
 
 MINIO_ENDPOINT=$(oc get route minio-s3 -n ic-shared-minio -o jsonpath='{.spec.host}')
-DSPA_URL=https://$(kubectl get route ds-pipeline-dspa -n ${DATA_SCIENCE_PROJECT_NAMESPACE} -o jsonpath='{.spec.host}')
 
 cat <<EOF > ./bootstrap/.creds
 AWS_ACCESS_KEY_ID="AK..."
@@ -68,7 +68,8 @@ AWS_S3_BUCKET="sagemaker-models-XYZ"
 MINIO_ACCESS_KEY=minio
 MINIO_SECRET_KEY=minio123
 MINIO_REGION=none
-MINIO_ENDPOINT=${MINIO_ENDPOINT}
+MINIO_ENDPOINT=https://${MINIO_ENDPOINT}
+MINIO_BUCKET=staging
 EVALUATION_KIT_FILENAME=models/evaluation_kit.zip
 KFP_PIPELINE_NAMESPACE=${DATA_SCIENCE_PROJECT_NAMESPACE}
 KFP_PIPELINE_DISPLAY_NAME=deploy
