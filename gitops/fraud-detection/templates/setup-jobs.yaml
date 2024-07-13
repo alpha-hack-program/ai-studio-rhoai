@@ -17,8 +17,8 @@ spec:
         - args:
             - -ec
             - |-
-              echo -n 'Creatint PipelineRun to create the first version of the KFP pipeline'
-              while ! oc get secret hf-creds 2>/dev/null; do
+              echo -n 'Creating PipelineRun to create the first version of the KFP pipeline {{ .Values.modelDeploymentUploadTektonPipelineName }}'
+              while ! oc get pipeline {{ .Values.modelDeploymentUploadTektonPipelineName }} 2>/dev/null; do
                 echo -n .
                 sleep 5
               done; echo
