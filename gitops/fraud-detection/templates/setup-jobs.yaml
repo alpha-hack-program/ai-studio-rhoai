@@ -66,13 +66,6 @@ spec:
           image: {{ .Values.setup.image }}
           imagePullPolicy: Always
           name: create-ds-connections
-          volumeMounts:
-            - name: models-volume
-              mountPath: /mnt/models
       restartPolicy: Never
       serviceAccount: setup-job
       serviceAccountName: setup-job
-      volumes:
-        - name: models-volume
-          persistentVolumeClaim:
-            claimName: models-pvc
