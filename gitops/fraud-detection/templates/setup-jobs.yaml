@@ -23,7 +23,7 @@ spec:
                 sleep 5
               done; echo
 
-              cat <<EOF | oc apply -f -
+              cat <<EOF | oc create -f -
               apiVersion: tekton.dev/v1beta1
               kind: PipelineRun
               metadata:
