@@ -91,4 +91,4 @@ workbench:
       # nvidiaGpu: '1'
 
 setup:
-  image: quay.io/atarazana/hf-cli:latest
+  image: openshift/client-cli:latest
