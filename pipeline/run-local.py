@@ -21,13 +21,13 @@ os.environ['MODEL_ZIP_PATH'] = 'models/fraud/1/model.onnx'
 os.environ['MODEL_S3_KEY'] = 'models/fraud/1/model.onnx'
 
 evaluation_data_output_dataset = Dataset( name='evaluation_data_output_dataset',
-                                             uri='/Users/cvicensa/Projects/openshift/alpha-hack-program/sagemaker-rhoai/pipeline/local_outputs/deploy-2024-06-26-11-18-35-229772/get-evaluation-kit/evaluation_data_output_dataset',
+                                             uri='/Users/cvicensa/Projects/openshift/alpha-hack-program/ai-studio-rhoai/pipeline/local_outputs/deploy-2024-06-26-11-18-35-229772/get-evaluation-kit/evaluation_data_output_dataset',
                                              metadata={} )
 output_model= Model(name='output_model',
-                    uri='/Users/cvicensa/Projects/openshift/alpha-hack-program/sagemaker-rhoai/pipeline/local_outputs/deploy-2024-06-26-11-18-35-229772/get-evaluation-kit/output_model',
+                    uri='/Users/cvicensa/Projects/openshift/alpha-hack-program/ai-studio-rhoai/pipeline/local_outputs/deploy-2024-06-26-11-18-35-229772/get-evaluation-kit/output_model',
                     metadata={} )
 scaler_output_model = Model( name='scaler_output_model',
-                                uri='/Users/cvicensa/Projects/openshift/alpha-hack-program/sagemaker-rhoai/pipeline/local_outputs/deploy-2024-06-26-11-18-35-229772/get-evaluation-kit/scaler_output_model',
+                                uri='/Users/cvicensa/Projects/openshift/alpha-hack-program/ai-studio-rhoai/pipeline/local_outputs/deploy-2024-06-26-11-18-35-229772/get-evaluation-kit/scaler_output_model',
                                 metadata={} )
 
 get_evaluation_kit_task = get_evaluation_kit()

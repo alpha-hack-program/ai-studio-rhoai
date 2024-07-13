@@ -1,0 +1,35 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: {{ .Values.modelDeploymentUploadTektonPipelineName }}-ks-plr
+  namespace: {{ .Values.dataScienceProjectNamespace }}
+  labels:
+    app.kubernetes.io/instance: {{ .Values.modelDeploymentUploadTektonPipelineName }}
+    pipeline.openshift.io/runtime: quarkus
+    pipeline.openshift.io/type: knative
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+spec:
+  params:
+    - name: APP_NAME
+      value: {{ .Values.modelDeploymentUploadTektonPipelineName }}
+    - name: GIT_PROVIDER
+      value: github
+    - name: GIT_REPO
+      value: '{{ .Values.vcs.uri }}'
+    - name: GIT_REPO_NAME
+      value: '{{ .Values.vcs.name }}'
+    - name: GIT_REVISION
+      value: '{{ .Values.vcs.ref }}'
+    - name: IMAGE_TAG
+      value: '{{ .Values.vcs.ref }}'
+    - name: REVISION_NAME
+      value: v1
+  pipelineRef:
+    name: {{ .Values.modelDeploymentUploadTektonPipelineName }}
+  serviceAccountName: pipeline
+  timeout: 0h15m0s
+  workspaces:
+    - name: workspace-source
+      persistentVolumeClaim:
+        claimName: "{{ .Values.instanceName }}-source-pvc"
