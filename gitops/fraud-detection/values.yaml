@@ -91,4 +91,4 @@ workbench:
       # nvidiaGpu: '1'
 
 setup:
-  image: openshift/client-cli:latest
+  image: openshift/cli:latest
