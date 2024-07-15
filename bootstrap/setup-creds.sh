@@ -4,7 +4,7 @@
 . .env
 
 # Check if namespace exists
-if ! kubectl get namespace ${DATA_SCIENCE_PROJECT_NAMESPACE} > /dev/null 2>&1; then
+if ! oc get namespace ${DATA_SCIENCE_PROJECT_NAMESPACE} > /dev/null 2>&1; then
   echo "Namespace ${DATA_SCIENCE_PROJECT_NAMESPACE} does not exist"
   exit 1
 fi
@@ -30,13 +30,16 @@ if [ -z "${MINIO_BUCKET}" ] || [ -z "${MINIO_ENDPOINT}" ] || [ -z "${MINIO_ACCES
   exit 1
 fi
 
-DSPA_URL=https://$(kubectl get route ds-pipeline-dspa -n ${DATA_SCIENCE_PROJECT_NAMESPACE} -o jsonpath='{.spec.host}')
+# Get DSPA_HOST from the ds-pipeline-dspa route which should be empty if no route is found
+DSPA_HOST=$(oc get route ds-pipeline-dspa -n ${DATA_SCIENCE_PROJECT_NAMESPACE} -o jsonpath='{.spec.host}')
 
-# Check if DSPA_URL is set
-if [ -z "${DSPA_URL}" ]; then
-  echo "It was not possible to get the DSPA_URL from the ds-pipeline-dspa route"
+# Check if DSPA_HOST is set and if not, exit with an error
+if [ -z "${DSPA_HOST}" ]; then
+  echo "There was a problem when trying to get the DSPA_HOST"
   exit 1
 fi
+
+DSPA_URL=https://${DSPA_HOST}
 
 # Set the EVALUATION_KIT_FILENAME, KFP_PIPELINE_NAMESPACE and KFP_PIPELINE_DISPLAY_NAME
 EVALUATION_KIT_FILENAME=models/evaluation_kit.zip
