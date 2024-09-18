@@ -131,3 +131,5 @@ And also this command that creates a secret called `camel-s3-integration-creds` 
 ```sh
 ./setup-creds.sh
 ```
+
+Create the staging bucket!!!
