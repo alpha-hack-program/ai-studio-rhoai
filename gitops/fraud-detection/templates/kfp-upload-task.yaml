@@ -2,6 +2,7 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   annotations:
+    argocd.argoproj.io/sync-wave: "3"
     tekton.dev/displayName: Upload a Pipeline to a KFP cluster
     tekton.dev/pipelines.minVersion: '0.19'
     tekton.dev/tags: 'kfp'

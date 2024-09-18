@@ -1,12 +1,12 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
   name: {{ .Values.modelDeploymentUploadTektonPipelineName }}
   namespace: {{ .Values.dataScienceProjectNamespace }}
   labels:
     app.kubernetes.io/instance: {{ .Values.modelDeploymentUploadTektonPipelineName }}
-    pipeline.openshift.io/runtime: quarkus
-    pipeline.openshift.io/type: knative
 spec:
   params:
     - name: APP_NAME
