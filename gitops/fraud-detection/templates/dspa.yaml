@@ -5,6 +5,7 @@ metadata:
   name: dspa
   namespace: {{ .Values.dataScienceProjectNamespace }}
   annotations:
+    argocd.argoproj.io/sync-wave: "0"
     argocd.argoproj.io/compare-options: IgnoreExtraneous
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:

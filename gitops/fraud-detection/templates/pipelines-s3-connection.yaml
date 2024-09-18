@@ -7,7 +7,7 @@ metadata:
     opendatahub.io/dashboard: 'true'
     opendatahub.io/managed: 'true'
   annotations:
-    argocd.argoproj.io/sync-wave: "-1" # Set sync-wave to -1 to avoid conflicts with other resources
+    argocd.argoproj.io/sync-wave: "0"
     opendatahub.io/connection-type: {{ .Values.pipelines.connection.type }}
     openshift.io/display-name: {{ .Values.pipelines.connection.displayName }}
 stringData:

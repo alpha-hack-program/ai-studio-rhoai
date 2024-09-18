@@ -203,6 +203,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   annotations:
+    argocd.argoproj.io/sync-wave: "5"
     openshift.io/description: 'PVC for {{ .Values.workbench.name }}'
     openshift.io/display-name: {{ .Values.workbench.name }}
   name: {{ .Values.workbench.name }}
@@ -220,6 +221,8 @@ spec:
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
   name: elyra-pipelines-{{ .Values.workbench.name }}
   namespace: {{ .Values.dataScienceProjectNamespace }}
   labels:

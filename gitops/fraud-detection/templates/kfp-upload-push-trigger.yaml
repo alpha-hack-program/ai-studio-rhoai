@@ -1,6 +1,8 @@
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
   name: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-github"
   namespace: {{ .Values.dataScienceProjectNamespace }}
 spec:
@@ -28,7 +30,7 @@ metadata:
   name: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-github-trigger-binding"
   namespace: {{ .Values.dataScienceProjectNamespace }}
   annotations:
-    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   params:
   - name: gitRepositoryUrl
@@ -47,6 +49,8 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
   name: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-gitea"
   namespace: {{ .Values.dataScienceProjectNamespace }}
 spec:
@@ -74,7 +78,7 @@ metadata:
   name: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-gitea-trigger-binding"
   namespace: {{ .Values.dataScienceProjectNamespace }}
   annotations:
-    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   params:
   - name: gitRepositoryUrl
@@ -93,6 +97,8 @@ spec:
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
   name: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-gitlab"
   namespace: {{ .Values.dataScienceProjectNamespace }}
 spec:
@@ -120,7 +126,7 @@ metadata:
   name: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-gitlab-trigger-binding"
   namespace: {{ .Values.dataScienceProjectNamespace }}
   annotations:
-    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   params:
   - name: gitRepositoryUrl
@@ -142,7 +148,7 @@ metadata:
   name: "{{ .Values.modelDeploymentUploadTektonPipelineName }}-trigger-template"
   namespace: {{ .Values.dataScienceProjectNamespace }}
   annotations:
-    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   params:
   - name: gitRepositoryUrl
