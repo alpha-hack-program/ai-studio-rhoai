@@ -5,7 +5,7 @@ metadata:
   annotations:
     app.openshift.io/vcs-ref: '{{ .Values.cicdApplication.targetRevision }}'
     app.openshift.io/vcs-uri: '{{ .Values.cicdApplication.repoURL }}'
-    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/sync-wave: "2"
   name: camel-s3-integration
   namespace: '{{ .Values.dataScienceProjectNamespace }}'
   labels:
