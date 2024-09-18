@@ -1,36 +1,36 @@
-apiVersion: tekton.dev/v1beta1
-kind: PipelineRun
-metadata:
-  name: {{ .Values.modelDeploymentUploadTektonPipelineName }}-ks-plr
-  namespace: {{ .Values.dataScienceProjectNamespace }}
-  labels:
-    app.kubernetes.io/instance: {{ .Values.modelDeploymentUploadTektonPipelineName }}
-    pipeline.openshift.io/runtime: quarkus
-    pipeline.openshift.io/type: knative
-  annotations:
-    argocd.argoproj.io/hook: PostSync
-    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
-spec:
-  params:
-    - name: APP_NAME
-      value: {{ .Values.modelDeploymentUploadTektonPipelineName }}
-    - name: GIT_PROVIDER
-      value: github
-    - name: GIT_REPO
-      value: '{{ .Values.vcs.uri }}'
-    - name: GIT_REPO_NAME
-      value: '{{ .Values.vcs.name }}'
-    - name: GIT_REVISION
-      value: '{{ .Values.vcs.ref }}'
-    - name: IMAGE_TAG
-      value: '{{ .Values.vcs.ref }}'
-    - name: REVISION_NAME
-      value: v1
-  pipelineRef:
-    name: {{ .Values.modelDeploymentUploadTektonPipelineName }}
-  serviceAccountName: pipeline
-  timeout: 0h15m0s
-  workspaces:
-    - name: workspace-source
-      persistentVolumeClaim:
-        claimName: "{{ .Values.instanceName }}-source-pvc"
+# PipelineRuns are excluded by default from the ArgoCD sync policy. And that's why we have a setup job.
+# apiVersion: tekton.dev/v1beta1
+# kind: PipelineRun
+# metadata:
+#   name: {{ .Values.modelDeploymentUploadTektonPipelineName }}-ks-plr
+#   namespace: {{ .Values.dataScienceProjectNamespace }}
+#   labels:
+#     app.kubernetes.io/instance: {{ .Values.modelDeploymentUploadTektonPipelineName }}
+#   annotations:
+#     argocd.argoproj.io/hook: Sync
+#     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+#     argocd.argoproj.io/sync-wave: "1"
+# spec:
+#   params:
+#     - name: APP_NAME
+#       value: {{ .Values.modelDeploymentUploadTektonPipelineName }}
+#     - name: GIT_PROVIDER
+#       value: github
+#     - name: GIT_REPO
+#       value: '{{ .Values.vcs.uri }}'
+#     - name: GIT_REPO_NAME
+#       value: '{{ .Values.vcs.name }}'
+#     - name: GIT_REVISION
+#       value: '{{ .Values.vcs.ref }}'
+#     - name: IMAGE_TAG
+#       value: '{{ .Values.vcs.ref }}'
+#     - name: REVISION_NAME
+#       value: v1
+#   pipelineRef:
+#     name: {{ .Values.modelDeploymentUploadTektonPipelineName }}
+#   serviceAccountName: pipeline
+#   timeout: 0h15m0s
+#   workspaces:
+#     - name: workspace-source
+#       persistentVolumeClaim:
+#         claimName: "{{ .Values.instanceName }}-source-pvc"
