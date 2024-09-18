@@ -4,7 +4,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "3"
   name: "{{ .Values.instanceName }}-source-pvc"
   namespace: "{{ .Values.dataScienceProjectNamespace }}"
 spec:
