@@ -3,7 +3,6 @@ apiVersion: kubeflow.org/v1
 kind: Notebook
 metadata:
   annotations:
-    # argocd.argoproj.io/hook: PostSync
     argocd.argoproj.io/sync-wave: "5"
     notebooks.opendatahub.io/inject-oauth: 'true'
     opendatahub.io/image-display-name: '{{ .Values.workbench.image.displayName }}'
