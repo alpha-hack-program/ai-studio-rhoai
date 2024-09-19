@@ -68,7 +68,7 @@ def get_evaluation_kit(
     # Create a temporary directory to store the evaluation kit
     
     local_tmp_dir = '/tmp/get_evaluation_kit'
-    print(f"local_tmp_dir: {local_tmp_dir}")
+    print(f">>> local_tmp_dir: {local_tmp_dir}")
     
     # Ensure local_tmp_dir exists
     if not os.path.exists(local_tmp_dir):
