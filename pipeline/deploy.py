@@ -134,6 +134,13 @@ def test_model(
 
     results_output_metrics.log_metric("accuracy", accuracy)
 
+@dsl.component(
+    base_image="quay.io/modh/runtime-images:runtime-cuda-tensorflow-ubi9-python-3.9-2023b-20240301",
+    packages_to_install=["onnx==1.16.1", "onnxruntime==1.18.0", "scikit-learn==1.5.0", "numpy==1.24.3", "pandas==2.2.2"]
+)
+def yield_not_deployed_error():
+    raise ValueError("Model not deployed")
+
 # This component parses the metrics and extracts the accuracy
 @dsl.component(
     base_image="quay.io/modh/runtime-images:runtime-cuda-tensorflow-ubi9-python-3.9-2023b-20240301"
@@ -268,8 +275,7 @@ def pipeline(accuracy_threshold: float = 0.95, deployment_name: str = "modelmesh
         # Refresh the deployment
         refresh_deployment(deployment_name=deployment_name).after(upload_model_task).set_caching_options(False)
     with dsl.Else():
-        # Raise an error if the model is not deployed
-        raise ValueError("Model not deployed")
+        yield_not_deployed_error().set_caching_options(False)
 
     # Set the S3 keys for get_evaluation_kit_task and kubernetes secret to be used in the task
     get_evaluation_kit_task.set_env_variable(name="EVALUATION_KIT_S3_KEY", value="models/evaluation_kit.zip")
