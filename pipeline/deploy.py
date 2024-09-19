@@ -134,6 +134,15 @@ def test_model(
 
     results_output_metrics.log_metric("accuracy", accuracy)
 
+@dsl.component(
+    base_image="quay.io/modh/runtime-images:runtime-cuda-tensorflow-ubi9-python-3.9-2023b-20240301",
+    packages_to_install=["onnx==1.16.1", "onnxruntime==1.18.0", "scikit-learn==1.5.0", "numpy==1.24.3", "pandas==2.2.2"]
+)
+def yield_not_deployed(
+    results_output_metrics: Output[Metrics]
+):
+    results_output_metrics.log_metric("deployed", 0)
+
 # This component parses the metrics and extracts the accuracy
 @dsl.component(
     base_image="quay.io/modh/runtime-images:runtime-cuda-tensorflow-ubi9-python-3.9-2023b-20240301"
@@ -187,7 +196,7 @@ def upload_model(input_model: Input[Model]):
     base_image="quay.io/modh/runtime-images:runtime-cuda-tensorflow-ubi9-python-3.9-2023b-20240301",
     packages_to_install=["kubernetes"]
 )
-def refresh_deployment(deployment_name: str):
+def refresh_deployment(deployment_name: str, results_output_metrics: Output[Metrics]):
     import datetime
     import kubernetes
 
@@ -225,6 +234,7 @@ def refresh_deployment(deployment_name: str):
             body=patch
         )
         print(f"Deployment {deployment_name} patched successfully")
+        results_output_metrics.log_metric("deployed", 1)
     except Exception as e:
         print(f"Failed to patch deployment {deployment_name}: {e}")
 
@@ -267,6 +277,8 @@ def pipeline(accuracy_threshold: float = 0.95, deployment_name: str = "modelmesh
 
         # Refresh the deployment
         refresh_deployment(deployment_name=deployment_name).after(upload_model_task).set_caching_options(False)
+    with dsl.Else():
+        yield_not_deployed().set_caching_options(False)
 
     # Set the S3 keys for get_evaluation_kit_task and kubernetes secret to be used in the task
     get_evaluation_kit_task.set_env_variable(name="EVALUATION_KIT_S3_KEY", value="models/evaluation_kit.zip")
