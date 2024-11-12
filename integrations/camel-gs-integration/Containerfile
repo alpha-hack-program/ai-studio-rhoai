@@ -1,0 +1,21 @@
+# Build stage
+FROM registry.access.redhat.com/ubi8/openjdk-21:1.19 AS builder
+
+WORKDIR /usr/src/app
+
+COPY --chown=185 pom.xml ./
+COPY --chown=185 src ./src
+RUN mvn package -DskipTests
+
+# Run stage
+FROM registry.access.redhat.com/ubi8/openjdk-21:1.19
+
+WORKDIR /usr/app
+
+COPY --from=builder /usr/src/app/target/quarkus-app/*.jar    /usr/app/
+COPY --from=builder /usr/src/app/target/quarkus-app/lib/     /usr/app/lib/
+COPY --from=builder /usr/src/app/target/quarkus-app/app/     /usr/app/app/
+COPY --from=builder /usr/src/app/target/quarkus-app/quarkus/ /usr/app/quarkus/
+
+EXPOSE 8080
+CMD ["java", "-jar", "/usr/app/quarkus-run.jar"]
