@@ -1,5 +1,5 @@
-# Enabled if integration.s3 is true
-{{- if .Values.integrations.s3 }}
+# Enabled if integration.gs is true
+{{- if .Values.integrations.gs }}
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -10,13 +10,13 @@ metadata:
     app.openshift.io/route-disabled: 'false'
     app.openshift.io/vcs-ref: '{{ .Values.cicdApplication.targetRevision }}'
     app.openshift.io/vcs-uri: '{{ .Values.cicdApplication.repoURL }}'
-  name: camel-s3-integration
+  name: camel-gs-integration
   namespace: {{ .Values.dataScienceProjectNamespace }}
   labels:
-    app: camel-s3-integration
-    app.kubernetes.io/component: camel-s3-integration
-    app.kubernetes.io/instance: camel-s3-integration
-    app.kubernetes.io/name: camel-s3-integration
+    app: camel-gs-integration
+    app.kubernetes.io/component: camel-gs-integration
+    app.kubernetes.io/instance: camel-gs-integration
+    app.kubernetes.io/name: camel-gs-integration
     app.kubernetes.io/part-of: camel-integrations
     app.openshift.io/runtime: quarkus
     app.openshift.io/runtime-version: openjdk-17-ubi8
@@ -24,19 +24,19 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: camel-s3-integration
+      app: camel-gs-integration
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: camel-s3-integration
-        deployment: camel-s3-integration
+        app: camel-gs-integration
+        deployment: camel-gs-integration
     spec:
-      serviceAccountName: camel-s3-integration
+      serviceAccountName: camel-gs-integration
       containers:
-        - name: camel-s3-integration
+        - name: camel-gs-integration
           image: >-
-            image-registry.openshift-image-registry.svc:5000/{{ .Values.dataScienceProjectNamespace }}/camel-s3-integration:latest
+            image-registry.openshift-image-registry.svc:5000/{{ .Values.dataScienceProjectNamespace }}/camel-gs-integration:latest
           ports:
             - containerPort: 8080
               protocol: TCP
@@ -44,7 +44,7 @@ spec:
               protocol: TCP
           envFrom:
             - secretRef:
-                name: camel-s3-integration-creds
+                name: camel-gs-integration-creds
           resources: {}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
@@ -65,20 +65,20 @@ spec:
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
-  name: camel-s3-integration
+  name: camel-gs-integration
   namespace: {{ .Values.dataScienceProjectNamespace }}
   labels:
-    app: camel-s3-integration
-    app.kubernetes.io/component: camel-s3-integration
-    app.kubernetes.io/instance: camel-s3-integration
-    app.kubernetes.io/name: camel-s3-integration
+    app: camel-gs-integration
+    app.kubernetes.io/component: camel-gs-integration
+    app.kubernetes.io/instance: camel-gs-integration
+    app.kubernetes.io/name: camel-gs-integration
     app.kubernetes.io/part-of: camel-integrations
     app.openshift.io/runtime: java
     app.openshift.io/runtime-version: openjdk-17-ubi8
 spec:
   to:
     kind: Service
-    name: camel-s3-integration
+    name: camel-gs-integration
     weight: 100
   port:
     targetPort: 8080-tcp
@@ -90,13 +90,13 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: camel-s3-integration
+  name: camel-gs-integration
   namespace: {{ .Values.dataScienceProjectNamespace }}
   labels:
-    app: camel-s3-integration
-    app.kubernetes.io/component: camel-s3-integration
-    app.kubernetes.io/instance: camel-s3-integration
-    app.kubernetes.io/name: camel-s3-integration
+    app: camel-gs-integration
+    app.kubernetes.io/component: camel-gs-integration
+    app.kubernetes.io/instance: camel-gs-integration
+    app.kubernetes.io/name: camel-gs-integration
     app.kubernetes.io/part-of: camel-integrations
     app.openshift.io/runtime: java
     app.openshift.io/runtime-version: openjdk-17-ubi8
@@ -120,6 +120,6 @@ spec:
   ipFamilyPolicy: SingleStack
   sessionAffinity: None
   selector:
-    app: camel-s3-integration
-    deployment: camel-s3-integration
+    app: camel-gs-integration
+    deployment: camel-gs-integration
 {{- end }}

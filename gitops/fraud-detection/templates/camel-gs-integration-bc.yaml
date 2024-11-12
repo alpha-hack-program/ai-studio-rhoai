@@ -1,5 +1,5 @@
-# Enabled if integration.s3 is true
-{{- if .Values.integrations.s3 }}
+# Enabled if integration.gs is true
+{{- if .Values.integrations.gs }}
 ---
 kind: BuildConfig
 apiVersion: build.openshift.io/v1
@@ -8,13 +8,13 @@ metadata:
     app.openshift.io/vcs-ref: '{{ .Values.cicdApplication.targetRevision }}'
     app.openshift.io/vcs-uri: '{{ .Values.cicdApplication.repoURL }}'
     argocd.argoproj.io/sync-wave: "2"
-  name: camel-s3-integration
+  name: camel-gs-integration
   namespace: '{{ .Values.dataScienceProjectNamespace }}'
   labels:
-    app: camel-s3-integration
-    app.kubernetes.io/component: camel-s3-integration
-    app.kubernetes.io/instance: camel-s3-integration
-    app.kubernetes.io/name: camel-s3-integration
+    app: camel-gs-integration
+    app.kubernetes.io/component: camel-gs-integration
+    app.kubernetes.io/instance: camel-gs-integration
+    app.kubernetes.io/name: camel-gs-integration
     app.kubernetes.io/part-of: camel-integrations
     app.openshift.io/runtime: java
     app.openshift.io/runtime-version: openjdk-17-ubi8
@@ -23,7 +23,7 @@ spec:
   output:
     to:
       kind: ImageStreamTag
-      name: 'camel-s3-integration:latest'
+      name: 'camel-gs-integration:latest'
   resources: {}
   successfulBuildsHistoryLimit: 5
   failedBuildsHistoryLimit: 5
@@ -37,29 +37,29 @@ spec:
     git:
       uri: '{{ .Values.cicdApplication.repoURL }}'
       ref: '{{ .Values.cicdApplication.targetRevision }}'
-    contextDir: integrations/camel-s3-integration
+    contextDir: integrations/camel-gs-integration
   triggers:
     - type: ConfigChange
     - type: Generic
       generic:
         secretReference:
-          name: camel-s3-integration-generic-webhook-secret
+          name: camel-gs-integration-generic-webhook-secret
     - type: GitHub
       github:
         secretReference:
-          name: camel-s3-integration-github-webhook-secret
+          name: camel-gs-integration-github-webhook-secret
   runPolicy: Serial
 ---
 kind: Secret
 apiVersion: v1
 metadata:
-  name: camel-s3-integration-generic-webhook-secret
+  name: camel-gs-integration-generic-webhook-secret
   namespace: '{{ .Values.dataScienceProjectNamespace }}'
   labels:
-    app: camel-s3-integration
-    app.kubernetes.io/component: camel-s3-integration
-    app.kubernetes.io/instance: camel-s3-integration
-    app.kubernetes.io/name: camel-s3-integration
+    app: camel-gs-integration
+    app.kubernetes.io/component: camel-gs-integration
+    app.kubernetes.io/instance: camel-gs-integration
+    app.kubernetes.io/name: camel-gs-integration
     app.kubernetes.io/part-of: camel-integrations
     app.openshift.io/runtime: java
     app.openshift.io/runtime-version: openjdk-17-ubi8
@@ -70,13 +70,13 @@ type: Opaque
 kind: Secret
 apiVersion: v1
 metadata:
-  name: camel-s3-integration-github-webhook-secret
+  name: camel-gs-integration-github-webhook-secret
   namespace: '{{ .Values.dataScienceProjectNamespace }}'
   labels:
-    app: camel-s3-integration
-    app.kubernetes.io/component: camel-s3-integration
-    app.kubernetes.io/instance: camel-s3-integration
-    app.kubernetes.io/name: camel-s3-integration
+    app: camel-gs-integration
+    app.kubernetes.io/component: camel-gs-integration
+    app.kubernetes.io/instance: camel-gs-integration
+    app.kubernetes.io/name: camel-gs-integration
     app.kubernetes.io/part-of: camel-integrations
     app.openshift.io/runtime: java
     app.openshift.io/runtime-version: openjdk-17-ubi8
@@ -90,13 +90,13 @@ metadata:
   annotations:
     app.openshift.io/vcs-ref: '{{ .Values.cicdApplication.targetRevision }}'
     app.openshift.io/vcs-uri: '{{ .Values.cicdApplication.repoURL }}'
-  name: camel-s3-integration
+  name: camel-gs-integration
   namespace: '{{ .Values.dataScienceProjectNamespace }}'
   labels:
-    app: camel-s3-integration
-    app.kubernetes.io/component: camel-s3-integration
-    app.kubernetes.io/instance: camel-s3-integration
-    app.kubernetes.io/name: camel-s3-integration
+    app: camel-gs-integration
+    app.kubernetes.io/component: camel-gs-integration
+    app.kubernetes.io/instance: camel-gs-integration
+    app.kubernetes.io/name: camel-gs-integration
     app.kubernetes.io/part-of: camel-integrations
     app.openshift.io/runtime: java
     app.openshift.io/runtime-version: openjdk-17-ubi8

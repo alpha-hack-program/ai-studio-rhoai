@@ -7,6 +7,10 @@ gitSslVerify: true
 modelDeploymentUploadTektonPipelineName: fraud-detection-kfp-upload
 sourceWorkspaceSize: 2Gi
 
+integrations:
+  gs: true
+  s3: true
+
 cicdApplication:
   repoURL: https://github.com/alpha-hack-program/ai-studio-rhoai.git
   path: gitops/fraud-detection-cicd

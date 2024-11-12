@@ -1,12 +1,12 @@
-# Enabled if integration.s3 is true
-{{- if .Values.integrations.s3 }}
+# Enabled if integration.gs is true
+{{- if .Values.integrations.gs }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "1"
-  name: camel-s3-integration
+  name: camel-gs-integration
   namespace: {{ .Values.dataScienceProjectNamespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -22,9 +22,9 @@ roleRef:
   name: pipeline-runner-dspa
 subjects:
 - kind: ServiceAccount
-  name: camel-s3-integration
+  name: camel-gs-integration
 ---
-# This role binding is used to give the pipeline-admin role to the camel-s3-integration service account
+# This role binding is used to give the pipeline-admin role to the camel-gs-integration service account
 # TODO: This needs to be adjusted to give only the necessary permissions!!!
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
@@ -35,7 +35,7 @@ metadata:
   namespace: {{ .Values.dataScienceProjectNamespace }}
 subjects:
   - kind: ServiceAccount
-    name: camel-s3-integration
+    name: camel-gs-integration
     namespace: {{ .Values.dataScienceProjectNamespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io

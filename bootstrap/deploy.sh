@@ -29,6 +29,10 @@ spec:
           value: "Project ${DATA_SCIENCE_PROJECT_NAMESPACE}"
         - name: dataScienceProjectNamespace
           value: "${DATA_SCIENCE_PROJECT_NAMESPACE}"
+        - name: integrations.gs
+          value: "true"
+        - name: integrations.s3
+          value: "true"
   syncPolicy:
     automated:
       # prune: true
