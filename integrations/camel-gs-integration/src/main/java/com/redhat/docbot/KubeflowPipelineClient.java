@@ -33,6 +33,7 @@ public interface KubeflowPipelineClient {
                 token = Files.readString(Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/token"));
             }
             authorizationHeader = "Bearer " + token.trim();
+            System.out.println(">>>Authorization header: " + authorizationHeader + "<<<");
             return authorizationHeader;
         } catch (IOException e) {
             throw new RuntimeException("Failed to read the service account token", e);
