@@ -6,10 +6,16 @@ apiVersion: apps/v1
 metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "4"
+    argocd.argoproj.io/compare-options: >
+      ContainerImage:
+        ignoreDifferences: |
+          jsonPointers:
+            - /spec/template/spec/containers/*/image
     alpha.image.policy.openshift.io/resolve-names: '*'
     app.openshift.io/route-disabled: 'false'
     app.openshift.io/vcs-ref: '{{ .Values.cicdApplication.targetRevision }}'
     app.openshift.io/vcs-uri: '{{ .Values.cicdApplication.repoURL }}'
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"camel-gs-integration:latest","namespace":"{{ .Values.namespace }}"},"fieldPath":"spec.template.spec.containers[?(@.name==\"camel-gs-integration\")].image","pause":"false"}]'
   name: camel-gs-integration
   namespace: {{ .Values.dataScienceProjectNamespace }}
   labels:
@@ -49,11 +55,22 @@ spec:
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           imagePullPolicy: Always
+          volumeMounts:
+            - name: service-account-key-volume
+              mountPath: /gs/service-account-key.json
+              readOnly: true
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
       dnsPolicy: ClusterFirst
       securityContext: {}
       schedulerName: default-scheduler
+      volumes:
+        - name: service-account-key-volume
+          secret:
+            secretName: camel-gs-service-account-key
+            items:
+              - key: GS_SERVICE_ACCOUNT_KEY
+                path: service-account-key.json
   strategy:
     type: RollingUpdate
     rollingUpdate:

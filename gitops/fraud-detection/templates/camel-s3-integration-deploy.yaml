@@ -6,10 +6,16 @@ apiVersion: apps/v1
 metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "4"
+    argocd.argoproj.io/compare-options: >
+      ContainerImage:
+        ignoreDifferences: |
+          jsonPointers:
+            - /spec/template/spec/containers/*/image
     alpha.image.policy.openshift.io/resolve-names: '*'
     app.openshift.io/route-disabled: 'false'
     app.openshift.io/vcs-ref: '{{ .Values.cicdApplication.targetRevision }}'
     app.openshift.io/vcs-uri: '{{ .Values.cicdApplication.repoURL }}'
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"camel-s3-integration:latest","namespace":"{{ .Values.namespace }}"},"fieldPath":"spec.template.spec.containers[?(@.name==\"camel-s3-integration\")].image","pause":"false"}]'
   name: camel-s3-integration
   namespace: {{ .Values.dataScienceProjectNamespace }}
   labels:
