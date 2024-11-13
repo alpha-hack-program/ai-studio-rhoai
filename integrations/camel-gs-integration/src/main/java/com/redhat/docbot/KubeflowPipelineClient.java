@@ -25,18 +25,17 @@ public interface KubeflowPipelineClient {
     @Path("/apis/v2beta1/runs")
     Response runPipeline(PipelineSpec pipelineSpec);
 
+    // Looks for service account token first in the k8s location /var/run/secrets/kubernetes.io/serviceaccount/token
+    // If not found, it looks for the token in the configuration property kfp-client.token if not found in neither location, 
+    // it throws a runtime exception
     default String getAuthorizationHeader() {
+        String authorizationHeader = null;
         try {
-            String authorizationHeader = null;
-            String token = ConfigProvider.getConfig().getValue("kfp-client.token", String.class);
-            if (token == null) {
-                token = Files.readString(Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/token"));
-            }
-            authorizationHeader = "Bearer " + token.trim();
-            System.out.println(">>>Authorization header: " + authorizationHeader + "<<<");
-            return authorizationHeader;
+            authorizationHeader = "Bearer " + Files.readString(Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/token"));
         } catch (IOException e) {
-            throw new RuntimeException("Failed to read the service account token", e);
+            authorizationHeader = "Bearer " + ConfigProvider.getConfig().getValue("kfp-client.token", String.class);
         }
+        System.out.println("Authorization header: >>>" + authorizationHeader + "<<<");
+        return authorizationHeader;
     }
 }
