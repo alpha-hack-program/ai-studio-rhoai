@@ -125,7 +125,7 @@ if [ "${GS}" = true ]; then
   # Delete the secret if it exists then create it
   oc delete secret camel-gs-integration-creds -n ${DATA_SCIENCE_PROJECT_NAMESPACE} > /dev/null 2>&1
   oc create secret generic camel-gs-integration-creds \
-    --from-literal=GS_SERVICE_ACCOUNT_KEY=${GS_SERVICE_ACCOUNT_KEY} \
+    --from-literal=GS_SERVICE_ACCOUNT_KEY=file:///gs/service-account-key.json \
     --from-literal=MINIO_BUCKET=${MINIO_BUCKET} \
     --from-literal=MINIO_ENDPOINT=${MINIO_ENDPOINT} \
     --from-literal=MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY} \

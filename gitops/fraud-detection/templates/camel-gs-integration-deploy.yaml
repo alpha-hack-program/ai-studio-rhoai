@@ -57,7 +57,7 @@ spec:
           imagePullPolicy: Always
           volumeMounts:
             - name: service-account-key-volume
-              mountPath: /gs/service-account-key.json
+              mountPath: /gs
               readOnly: true
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
