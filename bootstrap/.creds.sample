@@ -1,0 +1,17 @@
+AWS_ACCESS_KEY_ID="AK..."
+AWS_SECRET_ACCESS_KEY="f09oy..."
+AWS_REGION="eu-central-1"
+AWS_S3_BUCKET="sagemaker-models-..."
+
+MINIO_ACCESS_KEY=minio
+MINIO_SECRET_KEY=minio123
+MINIO_REGION=none
+MINIO_NAMESPACE=ic-shared-minio
+MINIO_BUCKET=staging
+
+EVALUATION_KIT_FILENAME=models/evaluation_kit.zip
+
+KFP_PIPELINE_NAMESPACE=fraud-detection-ds
+KFP_PIPELINE_DISPLAY_NAME=deploy
+
+GS_SERVICE_ACCOUNT_KEY=./.gcp-token
