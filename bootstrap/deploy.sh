@@ -70,7 +70,13 @@ while ! oc get project ${DATA_SCIENCE_PROJECT_NAMESPACE} > /dev/null 2>&1; do
 done
 
 # Project created
-echo "Project ${DATA_SCIENCE_PROJECT_NAMESPACE} created"
+echo "Project ${DATA_SCIENCE_PROJECT_NAMESPACE} was created successfully"
+
+# Wait for the DSPA URL to be created
+while ! oc get route ds-pipeline-dspa -n ${DATA_SCIENCE_PROJECT_NAMESPACE} > /dev/null 2>&1; do
+  echo "Waiting for the DSPA URL to be created"
+  sleep 5
+done
 
 # Set up credentials
 if [ "$S3" = true ]; then
