@@ -14,7 +14,7 @@ kind: RoleBinding
 metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "1"
-  name: camel-s3-pipeline-runner-dspa
+  name: camel-gs-pipeline-runner-dspa
   namespace: {{ .Values.dataScienceProjectNamespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
