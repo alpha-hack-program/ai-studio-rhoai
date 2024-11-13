@@ -46,20 +46,6 @@ public class GSEventListener extends RouteBuilder {
         }
     }
 
-    // @Override
-    // public void configure() throws Exception {
-    //     from("google-storage://{{bucket.name}}?autoCreateBucket=false&moveAfterRead=false")
-    //         .routeId("gcs-listener")
-    //         .log("Detected file: ${header.CamelGoogleCloudStorageObjectName}")
-    //         .process(exchange -> {
-    //             String fileName = exchange.getIn().getHeader("CamelGoogleCloudStorageObjectName", String.class);
-    //             if ("model.onnx".equals(fileName)) {
-    //                 log.info("model.onnx detected, triggering Kubeflow Pipeline");
-    //                 runPipeline();
-    //             }
-    //         });
-    // }
-
     @Override
     public void configure() throws Exception {
         from("google-storage://{{bucket.name}}?autoCreateBucket=false&deleteAfterRead=false&delay=1000")
@@ -111,8 +97,8 @@ public class GSEventListener extends RouteBuilder {
 
     private String runPipeline(String pipelineId) {
         PipelineSpec pipelineSpec = new PipelineSpec();
-        pipelineSpec.setDisplayName(pipelineDisplayName + "_run");
-        pipelineSpec.setDescription("Fraud Detection Pipeline run from Camel S3 Integration");
+        pipelineSpec.setDisplayName(pipelineDisplayName + "_gs_run");
+        pipelineSpec.setDescription("Fraud Detection Pipeline run from Camel GS Integration");
         RuntimeConfig runtimeConfig = new RuntimeConfig();
         // runtimeConfig.setParameters(Map.of("param1", "value1"));
         pipelineSpec.setRuntimeConfig(runtimeConfig);
