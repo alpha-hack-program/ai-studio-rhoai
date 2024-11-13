@@ -90,12 +90,27 @@ Open a terminal and run this command.
 
 > **NOTE:** Don't forget to log in using `oc` before running this command. AWS and Minio credentials should be updated!
 
+If working with **AWS Sagemaker**:
+
 ```sh
 cat <<EOF > .env
 AWS_ACCESS_KEY_ID="AK..."
 AWS_SECRET_ACCESS_KEY="7S.."
 AWS_REGION="eu-central-1"
 AWS_S3_BUCKET="sagemaker-models-XYZ"
+EOF
+```
+
+If working with **Google Vertex AI**:
+
+```sh
+cat <<EOF > service-account-key.json
+{
+"type": "service_account",
+"project_id": "pr-...",
+"private_key_id": "1fe638316973d18a50...
+...
+}
 EOF
 ```
 
