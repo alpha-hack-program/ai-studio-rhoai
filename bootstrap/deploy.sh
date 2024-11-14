@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# Check if .env file exists and if not, exit with an error
+if [ ! -f .env ]; then
+  echo "Please create a .env file with the required environment variables you can use .env.example as a template"
+  exit 1
+fi
+
 # Load environment variables
 . .env
 
