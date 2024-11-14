@@ -1,16 +1,36 @@
 # Sagemaker to RHOAI Fraud Detection
 
-This tutorial is based on: <https://rh-aiservices-bu.github.io/fraud-detection/> but instead of doing all the tasks in Red Hat OpenShift AI it tries to mmimic the scnerio where a Data Scientists develops a model in an AI Studio (like the ones  AWS, IBM, Google or Azure offer) and then deploys it in Red Hat OpenShift AI.
+## Table of Contents
+
+- [Sagemaker to RHOAI Fraud Detection](#sagemaker-to-rhoai-fraud-detection)
+  - [Overview](#overview)
+  - [Picture of the Architecture and Flow](#picture-of-the-architecture-and-flow)
+  - [Simplified Flow](#simplified-flow)
+- [Preparation](#preparation)
+  - [Adjust Minimal .env](#adjust-minimal-env)
+  - [AWS S3 Access](#aws-s3-access)
+  - [Log in to Sagemaker Studio](#log-in-to-sagemaker-studio)
+- [Training the Model in Sagemaker](#training-the-model-in-sagemaker)
+  - [Run Experiment and Save the Model](#run-experiment-and-save-the-model)
+  - [Create and Upload the Evaluation Kit](#create-and-upload-the-evaluation-kit)
+- [Deploying the Model in RHOAI](#deploying-the-model-in-rhoai)
+  - [Pre-requisites for Deployment](#pre-requisites-for-deployment)
+  - [Using ArgoCD for Deployment](#using-argocd-for-deployment)
+  - [Setup Camel S3 Integration Credentials](#setup-camel-s3-integration-credentials)
+  - [Create the Staging Bucket](#create-the-staging-bucket)
+
+## 1. Overview
+
+This tutorial is based on: <https://rh-aiservices-bu.github.io/fraud-detection/> but instead of doing all the tasks in Red Hat OpenShift AI it tries to mimic the scenario where Data Scientists develops a model in an AI Studio (like the ones  AWS, IBM, Google or Azure offer) and then deploys it in Red Hat OpenShift AI.
 
 There are some differences though:
 
 - For now this repo starts in Sagemaker but the scenario is generic
-- It uses Tekton to build the Kubeflow Pipeline (KFP) used to test and deploy the model
+- It uses Tekton to build a Kubeflow Pipeline (KFP) used to test and deploy the model
 - There's a Camel integration that helps moving the model from Amazon Web Services S3 to an on-premise Red Hat OpenShift AI installation
 - It uses Gitops to deploy all the components
 
-
-Picture of the arquitecture and flow.
+### 1.1 Picture of the arquitecture and flow:
 
 !['AI Studio to RHOAI'](./AI%20Studio%20to%20RHOAI.svg)
 
@@ -26,11 +46,9 @@ The simplified flow of the demonstration is as follows:
 8.
 9.
 
+## 2. Prerequisites and Setup
 
-
-# Preparation
-
-## Adjust minimal .env
+### 2.1 Adjust minimal .env
 
 Here you are sample `.env` file that should work straight away. Change `REPO_URL` if you have forked this repo and `INSTANCE_NAME` at will or if you want to deploy multiple times in the same cluster.
 
@@ -43,9 +61,9 @@ DATA_SCIENCE_PROJECT_NAMESPACE="${INSTANCE_NAME}-ds"
 EOF
 ```
 
-## AWS S3 access
+### 2.2 AWS S3 access
 
-Yo have to:
+In order to enable the AWS s3 access you need to:
 
 - Create a bucket you will use the bucket name later.
 - Create ACCESS KEYS and give them all persmissions on the S3 bucket
@@ -76,21 +94,21 @@ KFP_PIPELINE_DISPLAY_NAME=deploy
 EOF
 ```
 
-## Log in Sagemaker Studio
+### 2.3 Log in Sagemaker Studio
 
-Log in or create an account in https://studiolab.sagemaker.aws.
+* Log in or create an account in https://studiolab.sagemaker.aws.
 
 ![Sign in](./images/sagemaker-login.png)
 
-Then clone this repository.
+* Then clone this repository:
 
 ![Clone repo](./images/sagemaker-clone-repo.png)
 
-Open a terminal and run this command.
+* Open a terminal and run this command:
 
 > **NOTE:** Don't forget to log in using `oc` before running this command. AWS and Minio credentials should be updated!
 
-If working with **AWS Sagemaker**:
+* If you're working with **AWS Sagemaker**, then:
 
 ```sh
 cat <<EOF > .env
@@ -101,7 +119,7 @@ AWS_S3_BUCKET="sagemaker-models-XYZ"
 EOF
 ```
 
-If working with **Google Vertex AI**:
+* If you're working with **Google Vertex AI**, then:
 
 ```sh
 cat <<EOF > service-account-key.json
@@ -116,11 +134,11 @@ EOF
 
 ![Preparation](./images/sagemaker-preparation.png)
 
-Now open `1_experiment_train.ipynb` and run all the cells. This notebook creates a NN model and trains it with the data in file `./csv/card_transdata.csv`. The model is written to `models/fraud/1/model.onnx`. It also saves the scaler and evaluation data for later testing the model in `artifact` folder.
+* Now open `1_experiment_train.ipynb` and run all the cells. This notebook creates a NN model and trains it with the data in file `./csv/card_transdata.csv`. The model is written to `models/fraud/1/model.onnx`. It also saves the scaler and evaluation data for later testing the model in `artifact` folder.
 
-it's time to compress the `evaluation kit` that is: the model, scaler and evaluation data into `models/evaluation_kit.zip`. Finally the files are saved to the bucket you created in AWS S3.
+* It's time to compress the `evaluation kit` that is: the model, scaler and evaluation data into `models/evaluation_kit.zip`. Finally the files are saved to the bucket you created in AWS S3.
 
-## Time to deploy our smart rest service for fraud detection in RHOAI
+## 3. Time to deploy our smart rest service for fraud detection in RHOAI
 
 We're going to use ArgoCD to do it. It should be pretty straight forward if:
 
